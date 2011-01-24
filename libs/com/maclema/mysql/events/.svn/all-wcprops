@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/178/trunk/assql/asSQL_PureAS3/src/com/maclema/mysql/events
+END
+MySqlErrorEvent.as
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/!svn/ver/178/trunk/assql/asSQL_PureAS3/src/com/maclema/mysql/events/MySqlErrorEvent.as
+END
+MySqlEvent.as
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/!svn/ver/178/trunk/assql/asSQL_PureAS3/src/com/maclema/mysql/events/MySqlEvent.as
+END
