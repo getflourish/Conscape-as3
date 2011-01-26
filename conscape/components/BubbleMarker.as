@@ -1,4 +1,5 @@
-package {
+package conscape.components
+{
 	
     import flash.display.MovieClip;
     import flash.events.MouseEvent;    
