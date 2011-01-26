@@ -1,4 +1,4 @@
-package hci.events
+package conscape.events
 {
 	public class ScrollEvent extends DataEvent
 	{

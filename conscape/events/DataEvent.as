@@ -1,4 +1,4 @@
-package hci.events
+package conscape.events
 {
 	import flash.events.Event;
 	

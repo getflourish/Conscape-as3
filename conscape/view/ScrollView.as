@@ -14,7 +14,7 @@ package conscape.view
 	import gl.events.TouchEvent;
 	import gl.events.GestureEvent;
 	
-	import hci.events.*;
+	import conscape.events.*;
 	
 	public class ScrollView extends TouchSprite	{
 		
@@ -59,11 +59,11 @@ package conscape.view
 		public var bounceEnabled:Boolean = true;
 		public var content:TouchSprite;
 		public var directionalLock:String = FREE;
-		public var scalingEnabled:Boolean = true;
+		public var scalingEnabled:Boolean = false;
 		public var scrollEnabled:Boolean = true;
 		public var scrollsToTop:Boolean = true;
-	  	public var showsHorizontalScrollIndicator:Boolean = true;
-	  	public var showsVerticalScrollIndicator:Boolean = true;
+	  	public var showsHorizontalScrollIndicator:Boolean = false;
+	  	public var showsVerticalScrollIndicator:Boolean = false;
 
 		public function ScrollView(_width:Number, _height:Number, c:DisplayObject=null)
 		{

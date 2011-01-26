@@ -18,5 +18,16 @@ package conscape.util
 			if (!isNaN(Date.parse(s))) return true;
 			return false;
 		}
+		public static function convertMySQLDateToActionscript(s:String):Date {
+			var a:Array = s.split('-');
+			return new Date( a[0], a[1] - 1, a[2] );
+		}
+		public static function convertMySQLTimeStampToASDate(time:String):Date {
+			var pattern:RegExp = /[: -]/g;
+			time = time.replace( pattern, ',' );
+			var timeArray:Array = time.split( ',' );
+			var date:Date = new Date(timeArray[0], timeArray[1]-1, timeArray[2], timeArray[3], timeArray[4], timeArray[5]);
+			return date as Date;
+		}
     }
 }

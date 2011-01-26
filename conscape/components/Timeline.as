@@ -22,6 +22,8 @@ package conscape.components
         private var maxYValue:Number;
         private var minXValue:Number;
         private var minYValue:Number;
+        private var minDate:Date;
+        private var maxDate:Date;
         private var scrollView:ScrollView;
         private var xAxis:String;
         private var yAxis:String;
@@ -37,8 +39,6 @@ package conscape.components
         {
             this.graph = new Sprite();
             this.addChild(graph);
-            parseData();
-            update();
         }
         public function update ():void
         {               
@@ -49,13 +49,14 @@ package conscape.components
             graph.graphics.clear();
             graph.graphics.lineStyle(1, 0x000000);
             graph.graphics.moveTo(0, 0);
+            
             for each (var o:Object in data) {
-                // todo: Irgendwie herausfinden wie die Felder heißen
-                x = o[xAxis];
-                x = MathsUtil.map(n, 0, 100, 0, bounds.width);
+                var d:Date = MathsUtil.convertMySQLDateToActionscript(String(o[xAxis]));
+                x = d.getTime();
+                x = MathsUtil.map(x, minDate.getTime(), maxDate.getTime(), 0, bounds.width);
                 y = o[yAxis];
-                y = MathsUtil.map(y, minYValue, maxYValue, 0, bounds.height);
-                graph.graphics.lineTo(x, -y);
+                y = MathsUtil.map(y, 0, maxYValue, 0, bounds.height);
+                graph.graphics.lineTo(x, bounds.height - y);
                 n++;
             }
         }
@@ -70,12 +71,19 @@ package conscape.components
         {
             // Irgendwann mal schauen ob die Daten sortiert sind
             if (xAxis == undefined && yAxis == undefined) parseFields();
-             parseFields();
             // Grenzwerte für die Interpolation
+            
+            this.maxYValue = 0;
+            for each(var o:Object in data) {
+                if (o[yAxis] > this.maxYValue) this.maxYValue = o[yAxis];
+            }  
             this.minXValue = Number(data[0][xAxis]);
-            this.maxXValue = Number(data[data.length-1][xAxis]);
-            this.minYValue = Number(data[0][yAxis]);
-            this.maxYValue = Number(data[data.length-1][yAxis]);
+            this.minYValue = 0;
+            
+            this.minDate = MathsUtil.convertMySQLDateToActionscript(String(data[0][xAxis]));
+            this.maxDate = MathsUtil.convertMySQLDateToActionscript(String(data[data.length-1][xAxis]));
+            
+            trace(minDate.getTime() + ", " + maxDate.getTime());
         }
         private function parseFields ():void
         {
