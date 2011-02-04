@@ -55,7 +55,7 @@ package
             var rs:ResultSet = event.resultSet;
             var ds:Array = rs.getRows();
             trace(ds);
-            timeline = new Timeline(ds);
+            timeline = new Timeline(ds, 400, 100);
             timeline.setAxis("startdate", "anzahl");
             timeline.update();
             timeline.x = 0;

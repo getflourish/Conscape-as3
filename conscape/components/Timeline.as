@@ -5,6 +5,7 @@ package conscape.components
     
     import flash.display.Sprite;
     import flash.display.Graphics;
+    import flash.display.Shape;
     import flash.geom.Rectangle;
     
     import gl.events.TouchEvent;
@@ -15,9 +16,13 @@ package conscape.components
     public class Timeline extends TouchSprite
     {
         private var bounds:Rectangle;
+        private var boundsRectangle:Shape;
         private var data:Object;
         private var fields:Array;
         private var graph:Sprite;
+        private var holder:Sprite;
+        private var initWidth;
+        private var initHeight;
         private var maxXValue:Number;
         private var maxYValue:Number;
         private var minXValue:Number;
@@ -33,20 +38,31 @@ package conscape.components
             this.data = data;
             this.fields = [];
             this.bounds = new Rectangle(0, 0, width, height);
+            this.initWidth = width;
+            this.initHeight = height;
             init();
         }
         public function init ():void
         {
             this.graph = new Sprite();
             this.addChild(graph);
-            
-            this.scrollView = new ScrollView(800, 400, graph);
-            this.scrollView.x = 100;
-            this.scrollView.y = 100;
+        	
+            this.scrollView = new ScrollView(bounds.width, bounds.height, graph);
+            this.scrollView.x = 0;
+            this.scrollView.y = 0;
             this.scrollView.enableScrolling(ScrollView.HORIZONTAL);
             this.scrollView.addEventListener(GestureEvent.GESTURE_SCALE, onPinch);
             this.scrollView.addEventListener(TouchEvent.TOUCH_UP, onTouchUp);
             this.addChild(scrollView);
+            
+            // Unsichtbarer Container
+            this.holder = new Sprite();
+			boundsRectangle = new Shape();
+			boundsRectangle.graphics.beginFill(0xff0000, 0.1);
+			boundsRectangle.graphics.drawRect(0, 0, bounds.width, bounds.height);
+			boundsRectangle.graphics.endFill();
+			this.holder.addChild(boundsRectangle);
+			this.scrollView.content.addChild(holder);
         }
         public function update ():void
         {               
@@ -62,12 +78,27 @@ package conscape.components
                 var d:Date = MathsUtil.convertMySQLDateToActionscript(String(o[xAxis]));
                 x = d.getTime();
                 x = MathsUtil.map(x, minDate.getTime(), maxDate.getTime(), 0, bounds.width);
-                y = o[yAxis];
-                y = MathsUtil.map(y, 0, maxYValue, 0, bounds.height);
-                graph.graphics.moveTo(x, bounds.height);
-                graph.graphics.lineTo(x, bounds.height - y);
-                n++;
+                
+                var deltaX:Number = Math.abs(scrollView.content.x);
+                if (x > deltaX && x < deltaX + initWidth) {
+                    y = o[yAxis];
+                    y = MathsUtil.map(y, 0, maxYValue, 0, bounds.height);
+                    graph.graphics.moveTo(x, bounds.height);
+                    graph.graphics.lineTo(x, bounds.height - y);
+                    n++;
+                } else {
+                    graph.graphics.moveTo(x, 0);
+                }
             }
+            trace(n);
+            drawBounds(x);
+        }
+        private function drawBounds(width:Number=0, height:Number = 0):void
+        {
+            boundsRectangle.graphics.clear();
+			boundsRectangle.graphics.beginFill(0xff0000, 0.1);
+			boundsRectangle.graphics.drawRect(0, 0, width, height);
+			boundsRectangle.graphics.endFill();
         }
         public function setAxis (xAxis:String, yAxis:String):void
         {
