@@ -8,6 +8,7 @@ package
     import com.maclema.mysql.events.MySqlErrorEvent;
     
     import conscape.components.*;
+    import conscape.events.*;
     import conscape.view.ScrollView;
 
     import flash.display.Sprite;
@@ -55,12 +56,15 @@ package
             var rs:ResultSet = event.resultSet;
             var ds:Array = rs.getRows();
             trace(ds);
-            timeline = new Timeline(ds, 400, 100);
+            timeline = new Timeline(ds, 700, 300);
             timeline.setAxis("startdate", "anzahl");
             timeline.update();
             timeline.x = 0;
             timeline.y = 0;
             addChild(timeline);
+            timeline.addEventListener(TimelineEvent.RANGECHANGE, function(event:TimelineEvent) {
+                trace("range changed");
+            });
         }
         private function onError (event:MySqlErrorEvent):void
         {

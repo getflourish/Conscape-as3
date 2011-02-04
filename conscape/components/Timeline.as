@@ -1,5 +1,6 @@
 package conscape.components
 {
+    import conscape.events.*;
     import conscape.util.MathsUtil;
     import conscape.view.ScrollView;
     
@@ -23,12 +24,14 @@ package conscape.components
         private var holder:Sprite;
         private var initWidth;
         private var initHeight;
+        private var mapping:Array;
         private var maxXValue:Number;
         private var maxYValue:Number;
         private var minXValue:Number;
         private var minYValue:Number;
         private var minDate:Date;
         private var maxDate:Date;
+        private var timeScale:Number = 1;
         private var scrollView:ScrollView;
         private var xAxis:String;
         private var yAxis:String;
@@ -62,7 +65,30 @@ package conscape.components
 			boundsRectangle.graphics.drawRect(0, 0, bounds.width, bounds.height);
 			boundsRectangle.graphics.endFill();
 			this.holder.addChild(boundsRectangle);
-			this.scrollView.content.addChild(holder);
+			// this.scrollView.content.addChild(holder);
+        }
+        public function getDateForX (x:Number):Date
+        {
+            var x:Number = x;
+            var b:Rectangle = scrollView.getBoundingRectangle();
+            x = MathsUtil.map(x, 0, graph.width, minDate.getTime(), maxDate.getTime());
+            var d:Date = new Date(x);
+            trace(d);
+        }
+        public function initMapping ():void
+        {            
+            this.parseData();
+            this.mapping = [];
+            var x:Number = 0;
+            var y:Number = 0;
+            for each (var o:Object in data) {
+                var d:Date = MathsUtil.convertMySQLDateToActionscript(String(o[xAxis]));
+                x = d.getTime();
+                x = MathsUtil.map(x, minDate.getTime(), maxDate.getTime(), 0, bounds.width);
+                y = o[yAxis];
+                y = MathsUtil.map(y, 0, maxYValue, 0, bounds.height);
+                this.mapping.push({"date":d, "x":x, "y":y});
+            }
         }
         public function update ():void
         {               
@@ -73,25 +99,16 @@ package conscape.components
             graph.graphics.clear();
             graph.graphics.lineStyle(1, 0x777777);
             graph.graphics.moveTo(0, 0);
-            
-            for each (var o:Object in data) {
-                var d:Date = MathsUtil.convertMySQLDateToActionscript(String(o[xAxis]));
-                x = d.getTime();
-                x = MathsUtil.map(x, minDate.getTime(), maxDate.getTime(), 0, bounds.width);
-                
-                var deltaX:Number = Math.abs(scrollView.content.x);
-                if (x > deltaX && x < deltaX + initWidth) {
-                    y = o[yAxis];
-                    y = MathsUtil.map(y, 0, maxYValue, 0, bounds.height);
-                    graph.graphics.moveTo(x, bounds.height);
-                    graph.graphics.lineTo(x, bounds.height - y);
-                    n++;
-                } else {
-                    graph.graphics.moveTo(x, 0);
-                }
+
+            for each (var o:Object in mapping) {
+                x = o.x * timeScale;
+                y = o.y;
+                var deltaX:Number = 100;
+                graph.graphics.moveTo(x, bounds.height);
+                graph.graphics.lineTo(x, bounds.height - y);
             }
-            trace(n);
-            drawBounds(x);
+            var deltaX:Number = Math.abs(scrollView.content.x);
+            var d:Date = getDateForX(deltaX);
         }
         private function drawBounds(width:Number=0, height:Number = 0):void
         {
@@ -105,7 +122,7 @@ package conscape.components
             this.xAxis = xAxis;
             this.yAxis = yAxis; 
             parseData();
-            update();
+            initMapping();
         }
         private function parseData ():void
         {
@@ -138,12 +155,23 @@ package conscape.components
         private function onPinch (event:GestureEvent):void 
         {
             this.scrollView.disableScrolling();
-            this.bounds.width = bounds.width + event.value * 1000;
+            this.timeScale += event.value;
             update();
+            fireRangeChange();
         }
         private function onTouchUp (event:TouchEvent):void
         {
             this.scrollView.enableScrolling(ScrollView.HORIZONTAL);
+            fireRangeChange();
+        }
+        private function fireRangeChange():void
+        {
+            var b:Rectangle = scrollView.getBoundingRectangle();
+            var deltaX:Number = Math.abs(scrollView.content.x);
+            var min:Date = getDateForX(deltaX);
+            var max:Date = getDateForX(deltaX + b.width);
+            var data:Object = {"min":min, "max":max};
+            this.dispatchEvent(new TimelineEvent(TimelineEvent.RANGECHANGE, data));
         }
     }
 }

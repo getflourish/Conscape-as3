@@ -77,14 +77,14 @@ package conscape.view
 			
 			// Grenzen
 			bounds = new Sprite();
-			bounds.addChild(getBoundingRectangle());
+			bounds.addChild(getBoundingRectangleShape());
 			addChild(bounds);
 			content.mask = bounds;
 			
 			// Hintergrund als aktive Fläche damit man auch zwischen den Items scrollen kann
 			background = new Sprite();
 			background.alpha = 0;
-			background.addChild(getBoundingRectangle());
+			background.addChild(getBoundingRectangleShape());
 			addChildAt(background, 0);
 			
 			// Listener aktivieren damit alles flutscht
@@ -218,7 +218,12 @@ package conscape.view
 			addEventListener(TouchEvent.TOUCH_MOVE, scroll);
 			addEventListener(GestureEvent.GESTURE_SCALE, onScale);
 		}
-		private function getBoundingRectangle():Shape 
+		public function getBoundingRectangle():Rectangle
+		{
+		    var b:Rectangle = new Rectangle(0, 0, this.bwidth, this.bheight);
+		    return b;
+		}
+		private function getBoundingRectangleShape():Shape 
 		{
 			var rectangle:Shape = new Shape();
 			rectangle.graphics.beginFill(0x000000, 0);
@@ -241,6 +246,7 @@ package conscape.view
 			var destX:Number = calcFlickTargetX(dx);
 			var destY:Number = calcFlickTargetY(dy);
 			tweenScrollTo(destX, destY);
+			trace("flick");
 		}
 		private function hideScrollIndicators (instant:Boolean = false):void
 		{
