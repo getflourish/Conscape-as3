@@ -39,6 +39,14 @@ package conscape.components
         {
             this.graph = new Sprite();
             this.addChild(graph);
+            
+            this.scrollView = new ScrollView(800, 400, graph);
+            this.scrollView.x = 100;
+            this.scrollView.y = 100;
+            this.scrollView.enableScrolling(ScrollView.HORIZONTAL);
+            this.scrollView.addEventListener(GestureEvent.GESTURE_SCALE, onPinch);
+            this.scrollView.addEventListener(TouchEvent.TOUCH_UP, onTouchUp);
+            this.addChild(scrollView);
         }
         public function update ():void
         {               
@@ -47,7 +55,7 @@ package conscape.components
             var n:Number = 0;
             
             graph.graphics.clear();
-            graph.graphics.lineStyle(1, 0x000000);
+            graph.graphics.lineStyle(1, 0x777777);
             graph.graphics.moveTo(0, 0);
             
             for each (var o:Object in data) {
@@ -56,6 +64,7 @@ package conscape.components
                 x = MathsUtil.map(x, minDate.getTime(), maxDate.getTime(), 0, bounds.width);
                 y = o[yAxis];
                 y = MathsUtil.map(y, 0, maxYValue, 0, bounds.height);
+                graph.graphics.moveTo(x, bounds.height);
                 graph.graphics.lineTo(x, bounds.height - y);
                 n++;
             }
@@ -82,8 +91,6 @@ package conscape.components
             
             this.minDate = MathsUtil.convertMySQLDateToActionscript(String(data[0][xAxis]));
             this.maxDate = MathsUtil.convertMySQLDateToActionscript(String(data[data.length-1][xAxis]));
-            
-            trace(minDate.getTime() + ", " + maxDate.getTime());
         }
         private function parseFields ():void
         {
@@ -97,13 +104,15 @@ package conscape.components
         {
             this.bounds = b;
         }
-        public function getWidth ():Number 
+        private function onPinch (event:GestureEvent):void 
         {
-            return bounds.width;
-        }
-        public function setWidth(w:Number):void {
-            this.bounds.width = w;
+            this.scrollView.disableScrolling();
+            this.bounds.width = bounds.width + event.value * 1000;
             update();
+        }
+        private function onTouchUp (event:TouchEvent):void
+        {
+            this.scrollView.enableScrolling(ScrollView.HORIZONTAL);
         }
     }
 }
