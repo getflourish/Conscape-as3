@@ -169,6 +169,7 @@ package conscape.components
             var ratio:Number = pinchCenterX / scrollView.getBoundingRectangle().width;
             var oldW:Number = graph.width;
             update();
+            fireRangeChange();
             updateAxis();
             var newW:Number = graph.width;
             scrollView.content.x += (oldW - newW) * ratio;
@@ -177,7 +178,7 @@ package conscape.components
         {
             pinchCenterX = 0;
             this.scrollView.enableScrolling(ScrollView.HORIZONTAL);
-            fireRangeChange();
+            trace("one up");
         }
         private function parseData ():void
         {
