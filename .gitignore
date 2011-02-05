@@ -1,3 +1,7 @@
 .DS_Store
 libs
+<<<<<<< HEAD
 .svn
+=======
+*.swf
+>>>>>>> 9d0baf8ae6ef5a669766d569826fa887814f520c
