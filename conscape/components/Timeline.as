@@ -8,6 +8,7 @@ package conscape.components
     import flash.display.Graphics;
     import flash.display.Shape;
     import flash.geom.Rectangle;
+    import flash.geom.Point;
     
     import gl.events.TouchEvent;
     import gl.events.GestureEvent;
@@ -31,10 +32,13 @@ package conscape.components
         private var minYValue:Number;
         private var minDate:Date;
         private var maxDate:Date;
+        private var pinchCenterX:Number = 0;
         private var timeScale:Number = 1;
         private var scrollView:ScrollView;
         private var xAxis:String;
         private var yAxis:String;
+        
+        public var graphColor:uint = 0x000000;
         
         public function Timeline (data:Array, width:Number=200, height:Number=100):void
         {
@@ -73,7 +77,7 @@ package conscape.components
             var b:Rectangle = scrollView.getBoundingRectangle();
             x = MathsUtil.map(x, 0, graph.width, minDate.getTime(), maxDate.getTime());
             var d:Date = new Date(x);
-            trace(d);
+            return d;
         }
         public function initMapping ():void
         {            
@@ -97,7 +101,7 @@ package conscape.components
             var n:Number = 0;
             
             graph.graphics.clear();
-            graph.graphics.lineStyle(1, 0x777777);
+            graph.graphics.lineStyle(1, graphColor);
             graph.graphics.moveTo(0, 0);
 
             for each (var o:Object in mapping) {
@@ -155,12 +159,19 @@ package conscape.components
         private function onPinch (event:GestureEvent):void 
         {
             this.scrollView.disableScrolling();
-            this.timeScale += event.value;
+            this.timeScale += event.value * 10;
+
+            if (pinchCenterX == 0) pinchCenterX = event.localX, event.localY;
+            var ratio:Number = pinchCenterX / scrollView.getBoundingRectangle().width;
+            var oldW:Number = graph.width;
             update();
+            var newW:Number = graph.width;
             fireRangeChange();
+            scrollView.content.x += (oldW - newW) * ratio;
         }
         private function onTouchUp (event:TouchEvent):void
         {
+            pinchCenterX = 0;
             this.scrollView.enableScrolling(ScrollView.HORIZONTAL);
             fireRangeChange();
         }
@@ -168,9 +179,9 @@ package conscape.components
         {
             var b:Rectangle = scrollView.getBoundingRectangle();
             var deltaX:Number = Math.abs(scrollView.content.x);
-            var min:Date = getDateForX(deltaX);
-            var max:Date = getDateForX(deltaX + b.width);
-            var data:Object = {"min":min, "max":max};
+            var start:String = MathsUtil.convertASDateToMySQLTimestamp(getDateForX(deltaX));
+            var end:String = MathsUtil.convertASDateToMySQLTimestamp(getDateForX(deltaX + b.width));
+            var data:Object = {"startdate":start, "enddate":end};
             this.dispatchEvent(new TimelineEvent(TimelineEvent.RANGECHANGE, data));
         }
     }

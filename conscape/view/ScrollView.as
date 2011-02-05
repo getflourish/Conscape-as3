@@ -246,7 +246,6 @@ package conscape.view
 			var destX:Number = calcFlickTargetX(dx);
 			var destY:Number = calcFlickTargetY(dy);
 			tweenScrollTo(destX, destY);
-			trace("flick");
 		}
 		private function hideScrollIndicators (instant:Boolean = false):void
 		{
