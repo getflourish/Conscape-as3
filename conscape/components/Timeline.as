@@ -178,7 +178,7 @@ package conscape.components
         {
             pinchCenterX = 0;
             this.scrollView.enableScrolling(ScrollView.HORIZONTAL);
-            trace("one up");
+            fireRangeChange();
         }
         private function parseData ():void
         {

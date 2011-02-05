@@ -1,5 +1,4 @@
-package conscape.components
-{
+package {
 	
     import flash.display.MovieClip;
     import flash.events.MouseEvent;    
@@ -10,11 +9,13 @@ package conscape.components
      * Sample Marker
      * @author David Knape
      */
-    public class BubbleMarker extends TouchMovieClip {
+    public class SampleMarker extends TouchMovieClip {
            
         private var _title : String;
 
-        public function BubbleMarker() {        	 	
+        public function SampleMarker() {
+        	stop();       
+        	 	
         	buttonMode = true;
         	mouseChildren = false;
         	tabEnabled = false;        	
