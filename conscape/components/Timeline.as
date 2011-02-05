@@ -104,14 +104,14 @@ package conscape.components
             graph.graphics.lineStyle(1, graphColor);
             graph.graphics.moveTo(0, 0);
 
+            var deltaX:Number = 100;
             for each (var o:Object in mapping) {
                 x = o.x * timeScale;
                 y = o.y;
-                var deltaX:Number = 100;
                 graph.graphics.moveTo(x, bounds.height);
                 graph.graphics.lineTo(x, bounds.height - y);
             }
-            var deltaX:Number = Math.abs(scrollView.content.x);
+            deltaX = Math.abs(scrollView.content.x);
             var d:Date = getDateForX(deltaX);
         }
         private function drawBounds(width:Number=0, height:Number = 0):void
@@ -131,7 +131,7 @@ package conscape.components
         private function parseData ():void
         {
             // Irgendwann mal schauen ob die Daten sortiert sind
-            if (xAxis == undefined && yAxis == undefined) parseFields();
+            if (xAxis == null && yAxis == null) parseFields();
             // Grenzwerte für die Interpolation
             
             this.maxYValue = 0;
