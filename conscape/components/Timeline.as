@@ -9,6 +9,10 @@ package conscape.components
     import flash.display.Shape;
     import flash.geom.Rectangle;
     import flash.geom.Point;
+    import flash.text.Font;
+    import flash.text.TextField;
+    import flash.text.TextFormat;
+    import flash.utils.Dictionary;
     
     import gl.events.TouchEvent;
     import gl.events.GestureEvent;
@@ -20,9 +24,15 @@ package conscape.components
         private var bounds:Rectangle;
         private var boundsRectangle:Shape;
         private var data:Object;
+        private var dateLabelHeight:Number = 20;
+        private var dateLabelWidth:Number = 50;
+        private var dateLabelPaddingY:Number = 5;
+        private var dateAxis:Sprite;
+        private var dictionary:Dictionary;
         private var fields:Array;
         private var graph:Sprite;
-        private var holder:Sprite;
+        private var graphBounds:Rectangle;
+        private var background:Sprite;
         private var initWidth;
         private var initHeight;
         private var mapping:Array;
@@ -32,28 +42,36 @@ package conscape.components
         private var minYValue:Number;
         private var minDate:Date;
         private var maxDate:Date;
+        private var padding:Number = 15;
         private var pinchCenterX:Number = 0;
         private var timeScale:Number = 1;
+        private var title:TextField;
+        private var titleFormat:TextFormat;
         private var scrollView:ScrollView;
         private var xAxis:String;
         private var yAxis:String;
         
         public var graphColor:uint = 0x000000;
         
-        public function Timeline (data:Array, width:Number=200, height:Number=100):void
+        public function Timeline (data:Array, width:Number=200, height:Number=100, padding:Number=15):void
         {
             this.data = data;
             this.fields = [];
-            this.bounds = new Rectangle(0, 0, width, height);
+            this.padding = padding;
+            this.bounds = new Rectangle(padding, padding, width-2*padding, height-2*padding);
+            this.graphBounds = new Rectangle(padding, padding, width-2*padding, height - dateLabelHeight - 2*padding);
             this.initWidth = width;
             this.initHeight = height;
+            Font.registerFont(LabelFont);
             init();
         }
         public function init ():void
         {
+            // Das Diagramm, das aus Graphen und Beschriftung besteht
             this.graph = new Sprite();
             this.addChild(graph);
         	
+        	// Scrollview, worin sich das Diagramm befindet
             this.scrollView = new ScrollView(bounds.width, bounds.height, graph);
             this.scrollView.x = 0;
             this.scrollView.y = 0;
@@ -62,14 +80,70 @@ package conscape.components
             this.scrollView.addEventListener(TouchEvent.TOUCH_UP, onTouchUp);
             this.addChild(scrollView);
             
-            // Unsichtbarer Container
-            this.holder = new Sprite();
+            // Hintergrund
+            background = new Sprite();
 			boundsRectangle = new Shape();
-			boundsRectangle.graphics.beginFill(0xff0000, 0.1);
+			boundsRectangle.graphics.beginFill(0x0000ff, 0.1);
 			boundsRectangle.graphics.drawRect(0, 0, bounds.width, bounds.height);
 			boundsRectangle.graphics.endFill();
-			this.holder.addChild(boundsRectangle);
-			// this.scrollView.content.addChild(holder);
+			background.addChild(boundsRectangle);
+			addChild(background);
+			
+			// Titel des Diagrams (wird vom Hauptprogramm gesetzt)
+			
+			titleFormat = new TextFormat();
+            titleFormat.color = 0x000000;
+            titleFormat.size = 18;
+            titleFormat.font = "Consolas";
+            
+			this.title = new TextField();
+			this.addChild(title);
+            this.title.width = graphBounds.width;
+            this.title.x = padding;
+            this.title.y = -padding - Number(titleFormat.size);
+            this.title.selectable = false;
+            this.title.text = "BLA";
+            
+            this.title.setTextFormat(titleFormat);
+			
+			// Die Achsenbeschriftung der Zeitachse
+			this.dateAxis = new Sprite();
+			this.dateAxis.x = 0;
+			this.dateAxis.y = graphBounds.height;
+			this.scrollView.content.addChild(dateAxis);
+		}
+        public function initMapping ():void
+        {            
+            this.parseData();
+            this.mapping = [];
+            this.dictionary = new Dictionary(true);
+            var x:Number = 0;
+            var y:Number = 0;
+            for each (var o:Object in data) {
+                var d:Date = MathsUtil.convertMySQLDateToActionscript(String(o[xAxis]));
+                x = d.getTime();
+                x = MathsUtil.map(x, minDate.getTime(), maxDate.getTime(), 0, graphBounds.width);
+                y = o[yAxis];
+                y = MathsUtil.map(y, 0, maxYValue, 0, graphBounds.height);
+                this.mapping.push({"date":d, "x":x, "y":y});
+                this.dictionary[d] = x;
+            }
+        }
+        private function drawBounds(width:Number=0, height:Number = 0):void
+        {
+            boundsRectangle.graphics.clear();
+			boundsRectangle.graphics.beginFill(0xff0000, 0.1);
+			boundsRectangle.graphics.drawRect(0, 0, width, height);
+			boundsRectangle.graphics.endFill();
+        }
+        private function fireRangeChange():void
+        {
+            var b:Rectangle = scrollView.getBoundingRectangle();
+            var deltaX:Number = Math.abs(scrollView.content.x);
+            var start:Date = getDateForX(deltaX);
+            var end:Date = getDateForX(deltaX + b.width);
+            var data:Object = {"startdate":start, "enddate":end};
+            this.dispatchEvent(new TimelineEvent(TimelineEvent.RANGECHANGE, data));
         }
         public function getDateForX (x:Number):Date
         {
@@ -79,54 +153,31 @@ package conscape.components
             var d:Date = new Date(x);
             return d;
         }
-        public function initMapping ():void
-        {            
-            this.parseData();
-            this.mapping = [];
-            var x:Number = 0;
-            var y:Number = 0;
-            for each (var o:Object in data) {
-                var d:Date = MathsUtil.convertMySQLDateToActionscript(String(o[xAxis]));
-                x = d.getTime();
-                x = MathsUtil.map(x, minDate.getTime(), maxDate.getTime(), 0, bounds.width);
-                y = o[yAxis];
-                y = MathsUtil.map(y, 0, maxYValue, 0, bounds.height);
-                this.mapping.push({"date":d, "x":x, "y":y});
-            }
+        public function getXForDate (date:Date):Number
+        {
+            var d:Date = date;
+            var b:Rectangle = scrollView.getBoundingRectangle();
+            x = MathsUtil.map(x, 0, graph.width, minDate.getTime(), maxDate.getTime());
+            return x;
         }
-        public function update ():void
-        {               
-            var x:Number = 0;
-            var y:Number = 0;
-            var n:Number = 0;
-            
-            graph.graphics.clear();
-            graph.graphics.lineStyle(1, graphColor);
-            graph.graphics.moveTo(0, 0);
+        private function onPinch (event:GestureEvent):void 
+        {
+            this.scrollView.disableScrolling();
+            this.timeScale += event.value * 10;
 
-            for each (var o:Object in mapping) {
-                x = o.x * timeScale;
-                y = o.y;
-                var deltaX:Number = 100;
-                graph.graphics.moveTo(x, bounds.height);
-                graph.graphics.lineTo(x, bounds.height - y);
-            }
-            var deltaX:Number = Math.abs(scrollView.content.x);
-            var d:Date = getDateForX(deltaX);
+            if (pinchCenterX == 0) pinchCenterX = event.localX, event.localY;
+            var ratio:Number = pinchCenterX / scrollView.getBoundingRectangle().width;
+            var oldW:Number = graph.width;
+            update();
+            updateAxis();
+            var newW:Number = graph.width;
+            scrollView.content.x += (oldW - newW) * ratio;
         }
-        private function drawBounds(width:Number=0, height:Number = 0):void
+        private function onTouchUp (event:TouchEvent):void
         {
-            boundsRectangle.graphics.clear();
-			boundsRectangle.graphics.beginFill(0xff0000, 0.1);
-			boundsRectangle.graphics.drawRect(0, 0, width, height);
-			boundsRectangle.graphics.endFill();
-        }
-        public function setAxis (xAxis:String, yAxis:String):void
-        {
-            this.xAxis = xAxis;
-            this.yAxis = yAxis; 
-            parseData();
-            initMapping();
+            pinchCenterX = 0;
+            this.scrollView.enableScrolling(ScrollView.HORIZONTAL);
+            fireRangeChange();
         }
         private function parseData ():void
         {
@@ -152,37 +203,71 @@ package conscape.components
             this.xAxis = fields[0];
             this.yAxis = fields[1];
         }
+        public function setAxis (xAxis:String, yAxis:String):void
+        {
+            this.xAxis = xAxis;
+            this.yAxis = yAxis; 
+            parseData();
+            initMapping();
+            update();
+            updateAxis();
+        }
         public function setBounds(b:Rectangle):void 
         {
             this.bounds = b;
         }
-        private function onPinch (event:GestureEvent):void 
+        public function setTitle(title:String):void
         {
-            this.scrollView.disableScrolling();
-            this.timeScale += event.value * 10;
+            this.title.text = title;
+            this.title.setTextFormat(titleFormat);
+        }
+        public function update ():void
+        {               
+            var x:Number = 0;
+            var y:Number = 0;
+            var n:Number = 0;
+            
+            graph.graphics.clear();
+            graph.graphics.lineStyle(1, graphColor);
+            graph.graphics.moveTo(0, 0);
 
-            if (pinchCenterX == 0) pinchCenterX = event.localX, event.localY;
-            var ratio:Number = pinchCenterX / scrollView.getBoundingRectangle().width;
-            var oldW:Number = graph.width;
-            update();
-            var newW:Number = graph.width;
-            fireRangeChange();
-            scrollView.content.x += (oldW - newW) * ratio;
-        }
-        private function onTouchUp (event:TouchEvent):void
-        {
-            pinchCenterX = 0;
-            this.scrollView.enableScrolling(ScrollView.HORIZONTAL);
-            fireRangeChange();
-        }
-        private function fireRangeChange():void
-        {
-            var b:Rectangle = scrollView.getBoundingRectangle();
+            var bottom:Number = bounds.height - dateLabelHeight;
+            for each (var o:Object in mapping) {
+                x = o.x * timeScale;
+                y = o.y;
+                var deltaX:Number = 100;
+                graph.graphics.moveTo(x, bottom);
+                graph.graphics.lineTo(x, bottom - y);
+            }
             var deltaX:Number = Math.abs(scrollView.content.x);
-            var start:String = MathsUtil.convertASDateToMySQLTimestamp(getDateForX(deltaX));
-            var end:String = MathsUtil.convertASDateToMySQLTimestamp(getDateForX(deltaX + b.width));
-            var data:Object = {"startdate":start, "enddate":end};
-            this.dispatchEvent(new TimelineEvent(TimelineEvent.RANGECHANGE, data));
+            var d:Date = getDateForX(deltaX);
+            updateAxis();
+        }
+        private function updateAxis():void
+        {
+            while (dateAxis.numChildren) {
+            	dateAxis.removeChildAt(0);
+            }
+            var numDates:Number = maxDate.fullYear - minDate.fullYear;
+            var spacing:Number = scrollView.content.width / numDates;
+            var x:Number = 0;
+            for (var i:Number = 0; i < numDates; i++) {
+                var dateLabel:TextField = new TextField();  
+                dateAxis.addChild(dateLabel);
+                dateLabel.width = dateLabelWidth;
+                dateLabel.x = x;
+                dateLabel.y = dateLabelPaddingY;
+                dateLabel.text = "’" + String(getDateForX(x).fullYear).slice(2);
+                dateLabel.selectable = false;
+                
+                var format:TextFormat = new TextFormat();
+                format.color = graphColor;
+                format.size = 14;
+                format.font = "Consolas";
+                dateLabel.setTextFormat(format);
+                
+                x += spacing;
+            }
         }
     }
 }

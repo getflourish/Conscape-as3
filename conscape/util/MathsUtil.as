@@ -48,7 +48,7 @@ package conscape.util
 		}
 		public static function getMySQLDate( date:Date ):String {
 			var s:String = date.fullYear + '-';
-			if( date.month < 10 ) {
+			if( date.month < 9 ) {
 				s += '0' + ( date.month + 1 ) + '-';
 			} else {
 				s += ( date.month + 1 ) + '-';
@@ -60,5 +60,31 @@ package conscape.util
 			}
 			return s;
 		}
+		public static function getDaysBetweenDates(date1:Date,date2:Date):int
+        {
+        	var one_day:Number = 1000 * 60 * 60 * 24;
+        	var date1_ms:Number = date1.getTime();
+        	var date2_ms:Number = date2.getTime();		    
+        	var difference_ms:Number = Math.abs(date1_ms - date2_ms);
+        	return Math.round(difference_ms/one_day);
+        }
+        public static function getBeautifulDate(date:Date):String
+        {
+			var s:String = "";
+			if( date.date < 10 ) {
+				s += '0' + date.date;
+			} else {
+				s += date.date;
+			}
+			s += ".";
+			if( date.month < 9 ) {
+				s += '0' + ( date.month + 1 );
+			} else {
+				s += ( date.month + 1 );
+			}
+			s += ".";
+			s += date.fullYear;
+			return s;
+        }
     }
 }
