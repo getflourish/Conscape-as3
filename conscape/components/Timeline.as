@@ -129,29 +129,6 @@ package conscape.components
                 this.dictionary[d] = x;
             }
         }
-<<<<<<< HEAD
-=======
-        public function update ():void
-        {               
-            var x:Number = 0;
-            var y:Number = 0;
-            var n:Number = 0;
-            
-            graph.graphics.clear();
-            graph.graphics.lineStyle(1, graphColor);
-            graph.graphics.moveTo(0, 0);
-
-            var deltaX:Number = 100;
-            for each (var o:Object in mapping) {
-                x = o.x * timeScale;
-                y = o.y;
-                graph.graphics.moveTo(x, bounds.height);
-                graph.graphics.lineTo(x, bounds.height - y);
-            }
-            deltaX = Math.abs(scrollView.content.x);
-            var d:Date = getDateForX(deltaX);
-        }
->>>>>>> 9d0baf8ae6ef5a669766d569826fa887814f520c
         private function drawBounds(width:Number=0, height:Number = 0):void
         {
             boundsRectangle.graphics.clear();
@@ -255,15 +232,15 @@ package conscape.components
             graph.graphics.lineStyle(1, graphColor);
             graph.graphics.moveTo(0, 0);
 
+            var deltaX:Number = 100;
             var bottom:Number = bounds.height - dateLabelHeight;
             for each (var o:Object in mapping) {
                 x = o.x * timeScale;
                 y = o.y;
-                var deltaX:Number = 100;
                 graph.graphics.moveTo(x, bottom);
                 graph.graphics.lineTo(x, bottom - y);
             }
-            var deltaX:Number = Math.abs(scrollView.content.x);
+            deltaX = Math.abs(scrollView.content.x);
             var d:Date = getDateForX(deltaX);
             updateAxis();
         }
