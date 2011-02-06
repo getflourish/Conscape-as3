@@ -98,6 +98,7 @@ package
             createTimeline();
             currentDataProvider = new CurrentDataProvider(timeline, con);
             loadVenues();
+            trace("yay");
         }
         private function pause (event:KeyboardEvent):void
         {
