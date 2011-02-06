@@ -264,11 +264,11 @@ package conscape.components
             graph.graphics.lineStyle(timeScale / 2, graphColor, 1, false, LineScaleMode.NONE, CapsStyle.NONE, JointStyle.BEVEL);
             graph.graphics.moveTo(0, 0);
 
+            var deltaX:Number = 100;
             var bottom:Number = bounds.height - dateLabelHeight;
             for each (var o:Object in mapping) {
                 x = o.x * timeScale;
                 y = o.y;
-                var deltaX:Number = 100;
                 graph.graphics.moveTo(x, bottom);
                 graph.graphics.lineTo(x, bottom - y);
             }
