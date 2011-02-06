@@ -70,6 +70,10 @@ package conscape.components
             this.initFormats();
             init();
         }
+        public function setData(_data:Array):void
+        {
+            this.data = _data;
+        }
         public function init ():void
         {
             // Das Diagramm, das aus Graphen und Beschriftung besteht
