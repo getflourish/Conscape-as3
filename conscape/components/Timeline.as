@@ -6,9 +6,13 @@ package conscape.components
     
     import flash.display.Sprite;
     import flash.display.Graphics;
+    import flash.display.LineScaleMode;
+    import flash.display.CapsStyle;
+    import flash.display.JointStyle;
     import flash.display.Shape;
     import flash.geom.Rectangle;
     import flash.geom.Point;
+
     import flash.text.Font;
     import flash.text.TextField;
     import flash.text.TextFormat;
@@ -21,6 +25,7 @@ package conscape.components
     
     public class Timeline extends TouchSprite
     {
+        private var axisFormat:TextFormat;
         private var bounds:Rectangle;
         private var boundsRectangle:Shape;
         private var data:Object;
@@ -62,7 +67,7 @@ package conscape.components
             this.graphBounds = new Rectangle(padding, padding, width-2*padding, height - dateLabelHeight - 2*padding);
             this.initWidth = width;
             this.initHeight = height;
-            Font.registerFont(LabelFont);
+            this.initFormats();
             init();
         }
         public function init ():void
@@ -76,8 +81,10 @@ package conscape.components
             this.scrollView.x = 0;
             this.scrollView.y = 0;
             this.scrollView.enableScrolling(ScrollView.HORIZONTAL);
+            this.scrollView.showsHorizontalScrollIndicator = true;
             this.scrollView.addEventListener(GestureEvent.GESTURE_SCALE, onPinch);
             this.scrollView.addEventListener(TouchEvent.TOUCH_UP, onTouchUp);
+            this.scrollView.addEventListener(ScrollEvent.SCROLL, onScroll);
             this.addChild(scrollView);
             
             // Hintergrund
@@ -90,11 +97,6 @@ package conscape.components
 			addChild(background);
 			
 			// Titel des Diagrams (wird vom Hauptprogramm gesetzt)
-			
-			titleFormat = new TextFormat();
-            titleFormat.color = 0x000000;
-            titleFormat.size = 18;
-            titleFormat.font = "Consolas";
             
 			this.title = new TextField();
 			this.addChild(title);
@@ -111,6 +113,21 @@ package conscape.components
 			this.dateAxis.x = 0;
 			this.dateAxis.y = graphBounds.height;
 			this.scrollView.content.addChild(dateAxis);
+		}
+		private function initFormats ():void
+		{
+		    Font.registerFont(LabelFont);
+		    
+		    // Ein paar Textformatierungen
+		    titleFormat = new TextFormat();
+            titleFormat.color = 0x000000;
+            titleFormat.size = 18;
+            titleFormat.font = "Helvetica";
+            
+            axisFormat = new TextFormat();
+            axisFormat.color = graphColor;
+            axisFormat.size = 14;
+            axisFormat.font = "Helvetica";
 		}
         public function initMapping ():void
         {            
@@ -160,11 +177,24 @@ package conscape.components
             x = MathsUtil.map(x, 0, graph.width, minDate.getTime(), maxDate.getTime());
             return x;
         }
+        public function getTimeScale ():Number
+        {
+            return this.timeScale;
+        }
+        private function onScroll (event:ScrollEvent):void
+        {
+            fireRangeChange();
+        }
         private function onPinch (event:GestureEvent):void 
         {
+            trace(timeScale);
             this.scrollView.disableScrolling();
-            this.timeScale += event.value * 10;
-
+            if (timeScale >= 1) {
+                timeScale += event.value * 50;
+            } else {
+                timeScale = 1;
+            }  
+                
             if (pinchCenterX == 0) pinchCenterX = event.localX, event.localY;
             var ratio:Number = pinchCenterX / scrollView.getBoundingRectangle().width;
             var oldW:Number = graph.width;
@@ -173,6 +203,7 @@ package conscape.components
             updateAxis();
             var newW:Number = graph.width;
             scrollView.content.x += (oldW - newW) * ratio;
+            scrollView.updateScrollIndicators();
         }
         private function onTouchUp (event:TouchEvent):void
         {
@@ -183,7 +214,7 @@ package conscape.components
         private function parseData ():void
         {
             // Irgendwann mal schauen ob die Daten sortiert sind
-            if (xAxis == undefined && yAxis == undefined) parseFields();
+            if (xAxis == "" && yAxis == "") parseFields();
             // Grenzwerte für die Interpolation
             
             this.maxYValue = 0;
@@ -212,6 +243,7 @@ package conscape.components
             initMapping();
             update();
             updateAxis();
+            fireRangeChange();
         }
         public function setBounds(b:Rectangle):void 
         {
@@ -229,7 +261,7 @@ package conscape.components
             var n:Number = 0;
             
             graph.graphics.clear();
-            graph.graphics.lineStyle(1, graphColor);
+            graph.graphics.lineStyle(timeScale / 2, graphColor, 1, false, LineScaleMode.NONE, CapsStyle.NONE, JointStyle.BEVEL);
             graph.graphics.moveTo(0, 0);
 
             var bottom:Number = bounds.height - dateLabelHeight;
@@ -240,15 +272,17 @@ package conscape.components
                 graph.graphics.moveTo(x, bottom);
                 graph.graphics.lineTo(x, bottom - y);
             }
-            var deltaX:Number = Math.abs(scrollView.content.x);
+            deltaX = Math.abs(scrollView.content.x);
             var d:Date = getDateForX(deltaX);
             updateAxis();
         }
         private function updateAxis():void
         {
+            // bestehende Beschriftung löschen
             while (dateAxis.numChildren) {
             	dateAxis.removeChildAt(0);
             }
+            // Schauen wieviele Jahre es im Zeitraum gibt und in gleichen Abständen Jahreszahlen an die Achse schreiben
             var numDates:Number = maxDate.fullYear - minDate.fullYear;
             var spacing:Number = scrollView.content.width / numDates;
             var x:Number = 0;
@@ -260,12 +294,8 @@ package conscape.components
                 dateLabel.y = dateLabelPaddingY;
                 dateLabel.text = "’" + String(getDateForX(x).fullYear).slice(2);
                 dateLabel.selectable = false;
-                
-                var format:TextFormat = new TextFormat();
-                format.color = graphColor;
-                format.size = 14;
-                format.font = "Consolas";
-                dateLabel.setTextFormat(format);
+
+                dateLabel.setTextFormat(axisFormat);
                 
                 x += spacing;
             }

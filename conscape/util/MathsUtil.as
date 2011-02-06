@@ -1,5 +1,7 @@
 package conscape.util
 {
+    import flash.utils.Dictionary;
+    
     public class MathsUtil
     {
         public static function normalize(value:Number, minimum:Number, maximum:Number):Number {
@@ -40,7 +42,7 @@ package conscape.util
 		{
 			var s:String = d.fullYear + '-';
 			s += prependZero(d.month + 1) + '-';
-			s += prependZero(d.day) + ' ';
+			s += prependZero(d.date) + ' ';
 			s += prependZero(d.hours) + ':';
 			s += prependZero(d.minutes) + ':';
 			s += prependZero(d.seconds);			
@@ -85,6 +87,14 @@ package conscape.util
 			s += ".";
 			s += date.fullYear;
 			return s;
+        }
+        public static function countKeys(myDictionary:Dictionary):int 
+        {
+            var n:int = 0;
+            for (var key:* in myDictionary) {
+                n++;
+            }
+            return n;
         }
     }
 }

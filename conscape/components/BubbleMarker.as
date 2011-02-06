@@ -19,7 +19,7 @@ package {
         	buttonMode = true;
         	mouseChildren = false;
         	tabEnabled = false;        	
-        	cacheAsBitmap = true;
+        	cacheAsBitmap = false;
         	
         	addEventListener( MouseEvent.ROLL_OVER, bringToFront, true );
         }

@@ -89,6 +89,7 @@ package conscape.view
 			
 			// Listener aktivieren damit alles flutscht
 			enableScrolling();
+			createScrollIndicators();
 		}
 		private function calcFlickTargetX (dx: Number):Number
 		{
@@ -209,7 +210,6 @@ package conscape.view
 		{
 			this.scrollEnabled = true;
 			this.directionalLock = lock;
-			this.createScrollIndicators();
 			this.blobContainerEnabled = true;
 			
 			addEventListener(GestureEvent.GESTURE_FLICK, gestureFlickHandler);
@@ -403,7 +403,7 @@ package conscape.view
 				showScrollIndicators();
 				TweenLite.to(content, duration, { x: destX, y: destY, ease:Circ.easeOut, onComplete:function():void {
 					scrolling = false;
-					updateScrollIndicators();
+					// updateScrollIndicators();
 					hideScrollIndicators();
 				}});
 				dispatchEvent(new ScrollEvent(ScrollEvent.SCROLL, {"x": destX, "y": destY}));
@@ -445,12 +445,12 @@ package conscape.view
 			if (showsHorizontalScrollIndicator) {
 				var sx:Number = (-content.x / content.width) * bounds.width;
 				var w:Number = (bounds.width / content.width) * bounds.width;
-				
-				if (sx > bounds.width - h) {
+				// Rechter Rand
+				if (sx > bounds.width - w) {
 					w = w - (sx - (bounds.width - w));
-					sx = bounds.height - w;
+					sx = bounds.width - w;
+                // Linker Rand
 				} else if (sx < 0) {
-					// Oberer Rand drüber
 					w = w + sx;
 					sx = 0;
 				}
@@ -460,7 +460,7 @@ package conscape.view
 				horizontalScrollIndicator.graphics.drawRoundRect(0, bounds.height - scrollIndicatorThickness, w, scrollIndicatorThickness, 10);
 				horizontalScrollIndicator.graphics.endFill();
 				
-				TweenLite.to(horizontalScrollIndicator, 1, {x: sx, ease:Circ.easeOut});	
+                TweenLite.to(horizontalScrollIndicator, 1, {x: sx, ease:Circ.easeOut});	
 			}
 		}
 		/* 	Das geht leider nicht so einfach. Das Weiterleiten funktioniert so zwar aber
