@@ -102,6 +102,7 @@ package
         }
         private function pause (event:KeyboardEvent):void
         {
+            trace("merge stinkt");
             if (auto) {
                 if (myTimer.running) {
                     myTimer.stop();
