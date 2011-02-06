@@ -246,13 +246,13 @@ package
         }
         private function onMarkerTap (event:MarkerEvent):void 
         {
-            var pt:Point;
-            if (event.marker is BubbleMarker) {
-                var b:BubbleMarker = event.marker as BubbleMarker;
+            if (event.marker is Venue) {
+                var pt:Point;
+                var venue:Venue = event.marker as Venue;
                 map.removeMarker("bla");   
                 // Tooltip mit dem Namen des Markers anzeigen
                 pt = map.locationPoint(event.location);
-                tooltip.label_txt.text = b.title;
+                tooltip.label_txt.text = venue.getData("name");
                 tooltip.visible = true;
                 tooltip.name = "bla";
                 map.putMarker(map.pointLocation(pt), tooltip);   

@@ -48,6 +48,11 @@ package conscape.components
         {
             return this.venue_location;
         }
+        public function getData(key:String = null):*
+        {
+            if (key) return this.venue_data[key];
+            return this.venue_data;
+        }
         public function getId():String
         {
             return this.venue_data["lastfm_id"];
