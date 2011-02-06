@@ -98,12 +98,9 @@ package
             createTimeline();
             currentDataProvider = new CurrentDataProvider(timeline, con);
             loadVenues();
-            trace("yay");
-            trace("yay2");
         }
         private function pause (event:KeyboardEvent):void
         {
-            trace("merge stinkt");
             if (auto) {
                 if (myTimer.running) {
                     myTimer.stop();
