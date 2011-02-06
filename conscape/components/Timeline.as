@@ -22,6 +22,7 @@ package conscape.components
     import gl.events.GestureEvent;
     
     import id.core.TouchSprite;
+    import id.tracker.Tracker;
     
     public class Timeline extends TouchSprite
     {
@@ -199,8 +200,9 @@ package conscape.components
                 timeScale = 1;
             }  
                 
-            if (pinchCenterX == 0) pinchCenterX = event.localX, event.localY;
+            if (pinchCenterX == 0) pinchCenterX = event.localX;
             var ratio:Number = pinchCenterX / scrollView.getBoundingRectangle().width;
+            trace("w: " + scrollView.getBoundingRectangle().width);
             var oldW:Number = graph.width;
             update();
             fireRangeChange();
@@ -211,7 +213,7 @@ package conscape.components
         }
         private function onTouchUp (event:TouchEvent):void
         {
-            pinchCenterX = 0;
+            if (Tracker.getInstance().tactualObjectCount == 1) pinchCenterX = 0;
             this.scrollView.enableScrolling(ScrollView.HORIZONTAL);
             fireRangeChange();
         }

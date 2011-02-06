@@ -180,7 +180,7 @@ package
             con = new Connection("localhost", 3306, "conscape", "qmjKynvKXrTF3qqZ", "conscape");
             con.connect();
         }
-        private function bearMarker (s:Sprite):void
+        private function growMarker (s:Sprite):void
         {
             s.alpha = 0;
             TweenLite.to(s, 1, {alpha:0.5});
@@ -203,6 +203,7 @@ package
         }
         private function visualizeEvents (startdate:String, enddate:String=null):void
         {
+            
             
         }
         private function autoNextDate(event:TimerEvent):void
