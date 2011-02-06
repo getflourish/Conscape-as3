@@ -1,4 +1,4 @@
-package
+package conscape.components
 {
     import flash.display.Shape;
     
@@ -11,9 +11,14 @@ package
 		private var colours:Array = [
 		    0xFF0000,
 		    0x00FF00,
-		    0x0000FF
+		    0x0000FF,
+		    0xFF0000,
+		    0x00FF00,
+		    0x0000FF,
+		    0xFF0000,
+		    0x00FF00
 		];
-		private var radius:Number;
+		private var radius:Number = 1;
 		
         public function PieChart(_chartData:Array)
         {
@@ -50,13 +55,21 @@ package
                 this.percentages.push(amount2*ratio/100);
             }
         }
+        public function setRadius(_radius:Number):void
+        {
+            this.radius = _radius;
+        }
+        public function getRadius():Number
+        {
+            return this.radius;
+        }
         public function draw():void
         {
             this.graphics.clear();
             var rotation:Number = 0;
             for (var i:Number = 0; i < this.percentages.length; i++) {
                 if (this.percentages[i] == 0) continue;
-                PieChart.drawWedge(this, 50, this.percentages[i], this.colours[i], rotation);
+                PieChart.drawWedge(this, this.radius, this.percentages[i], this.colours[i], rotation);
                 rotation += 360 * (this.percentages[i]);
             }
         }

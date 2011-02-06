@@ -75,6 +75,7 @@ package
         private var zoomPoint:Point;
         
         private var venues:Dictionary;
+        private var currentDataProvider:CurrentDataProvider;
 
         public function Conscape() 
         {
@@ -94,8 +95,9 @@ package
             
             createMap(); 
             connectToDatabase();
-            loadVenues(); 	
             createTimeline();
+            currentDataProvider = new CurrentDataProvider(timeline, con);
+            loadVenues();
         }
         private function pause (event:KeyboardEvent):void
         {
@@ -137,16 +139,18 @@ package
         }
         private function createTimeline():void
         {
+            timeline = new Timeline([], stage.stageWidth - TIMELINEPADDINGLEFT - PADDINGRIGHT, stage.stageHeight - map.height - 2 * TIMELINEPADDINGTOP);
+            
+            
             var st:Statement = con.createStatement(); 
             var token:MySqlToken = st.executeQuery("SELECT COUNT(startdate) AS anzahl, DATE_FORMAT(startdate, '%Y-%m-%d') AS startdate FROM events WHERE YEAR(startdate) > 2005 GROUP BY YEAR(startdate), MONTH(startdate), DAY(startdate)");
             token.addEventListener(MySqlErrorEvent.SQL_ERROR, onError);
             token.addEventListener(MySqlEvent.RESULT, function(event:MySqlEvent)
             { 
                 var rs:ResultSet = event.resultSet;
-                var ds:Array = rs.getRows();
-                timeline = new Timeline(ds, stage.stageWidth - TIMELINEPADDINGLEFT - PADDINGRIGHT, stage.stageHeight - map.height - 2 * TIMELINEPADDINGTOP);
+                timeline.setData(rs.getRows())
                 timeline.addEventListener(TimelineEvent.RANGECHANGE, function(event:TimelineEvent) {
-                    visualizeEvents(MathsUtil.convertASDateToMySQLTimestamp(event.data.startdate), MathsUtil.convertASDateToMySQLTimestamp(event.data.enddate));
+                    
                     timeline.setTitle("Konzerte vom " + MathsUtil.getBeautifulDate(event.data.startdate) + "—" + MathsUtil.getBeautifulDate(event.data.enddate));
                 });
                 timeline.setAxis("startdate", "anzahl");
@@ -164,14 +168,12 @@ package
             token.addEventListener(MySqlErrorEvent.SQL_ERROR, onError);
             token.addEventListener(MySqlEvent.RESULT, function(event:MySqlEvent)
             {
-                for each(var venue:* in event.resultSet.getRows()) {
-                    venues[venue["lastfm_id"]] = venue;
+                for each(var venue_data:* in event.resultSet.getRows()) {
+                    var venue:Venue = new Venue(venue_data, currentDataProvider)
+                    venues[venue.getId()] = venue;
+                    map.putMarker(venue.getLocation(), venue);
                 }
             });
-        }
-        private function putVenuesOnMap ():void
-        {
-            
         }
         private function connectToDatabase ():void
         {
@@ -201,93 +203,7 @@ package
         }
         private function visualizeEvents (startdate:String, enddate:String=null):void
         {
-            // Holt die Anzahl der Events pro Venue im angegebenen Zeitraum
-            if (enddate) {
-                var query:String = [
-                    "SELECT venues.name, venues.lastfm_id, venues.geo_lat, venues.geo_long, events.attendance, events.title, events.startdate, events.anzahl",
-                    "FROM venues",
-                    "INNER JOIN (SELECT lastfm_venue_id, attendance, title, startdate, COUNT(*) AS anzahl FROM events",
-                    "WHERE startdate >= '" + startdate + "%' AND startdate <= '" + enddate + "%' GROUP BY lastfm_venue_id)",
-                    "events ON events.lastfm_venue_id = venues.lastfm_id GROUP BY events.lastfm_venue_id ORDER BY events.anzahl DESC"
-                    ].join(" ");   
-            } else {
-                query = [
-                    "SELECT venues.name, venues.lastfm_id, venues.geo_lat, venues.geo_long, events.attendance, events.title, events.startdate, events.anzahl",
-                    "FROM venues",
-                    "INNER JOIN (SELECT lastfm_venue_id, attendance, title, startdate, COUNT(*) AS anzahl FROM events",
-                    "WHERE startdate LIKE '" + startdate + "%' GROUP BY lastfm_venue_id)",
-                    "events ON events.lastfm_venue_id = venues.lastfm_id GROUP BY events.lastfm_venue_id ORDER BY events.anzahl DESC"
-                    ].join(" ");
-            }
             
-            //killAllMarkers();
-            
-            var st:Statement = con.createStatement(); 
-            var token:MySqlToken = st.executeQuery(query);
-            token.addEventListener(MySqlErrorEvent.SQL_ERROR, onError);
-            token.addEventListener(MySqlEvent.RESULT, function (event:MySqlEvent) {
-                var data:ResultSet = event.resultSet;
-
-                cachedMarkers = new Dictionary(true);
-                // Cache existing markers
-                for (var markerName:String in markers) {
-                    cachedMarkers[markerName] = markers[markerName];
-                }
-                while (data.next()) {
-                    if (data.getString("geo_lat") && data.getString("geo_long")) {
-                        // Anzahl der maximalen Events für eine Venue besorgen damit man die Anzahl der Events auf die Kreise mappen kann
-                        if (maxEvents == 0) maxEvents = data.getNumber("anzahl");
-                        
-                        // Daten für den Marker
-                        var title:String = data.getString("name");
-                        var lat:Number = data.getNumber("geo_lat");
-                        var lng:Number = data.getNumber("geo_long");
-                        var location:Location = new Location(lat, lng);
-                        // Schauen ob es den Marker für die Venue schon gibt
-                        if (markers[title] == undefined) {
-                            trace("NOPE");
-                            // Marker noch nicht vorhanden also einen erstellen
-                            var marker:BubbleMarker = new BubbleMarker();
-                            map.putMarker(location, marker);
-                            markers[title] = marker;
-                            bearMarker(marker);
-                        } else {
-                            // Marker schon vorhanden
-                            trace("schon vorhanden" + title);
-                            marker = markers[title];
-                            // bearMarker(marker);
-                            delete cachedMarkers[title];
-                        } 
-                        // Label und Form anpassen
-                        marker.title = title;
-                        marker.textLabel.label.text = String(data.getNumber("anzahl"));
-                        // Die Größe ist relativ zur maximalen Anzahl der Events pro Venue für den ausgewählten Zeitraum
-                        var s:Number = MathsUtil.map(data.getNumber("anzahl"), 0, maxEvents, 1, 10);
-                        // Mittelpunkt des Markers um den skaliert wird
-                        /*
-                        var c:Point = new Point(marker.ellipse.x / 2, marker.ellipse.y / 2);
-                        // Matrix benutzen um zu skalieren
-                        var m:Matrix = marker.ellipse.transform.matrix;
-                        m.translate(-c.x, -c.y);
-                        m.scale(s, s);
-                        m.translate(c.x, c.y);
-                        marker.ellipse.transform.matrix = m;
-                        // Transparenz
-                        marker.ellipse.alpha = 0.5;
-                        */
-                        trace(s);
-                        TweenLite.to(marker.ellipse, 1, {scaleX:s, scaleY:s});
-                        // map.putMarker(location, marker);
-                    }
-                }
-                // Alle nicht mehr verwendeten Marker entfernen
-                for (var name:String in cachedMarkers) {
-                    trace("killing marker " + name);
-                    killMarker(cachedMarkers[name] as Sprite);
-                    delete markers[name];
-                }
-                maxEvents = 0;
-            });
         }
         private function autoNextDate(event:TimerEvent):void
         {
