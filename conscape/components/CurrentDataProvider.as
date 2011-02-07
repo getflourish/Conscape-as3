@@ -18,6 +18,7 @@ package conscape.components
         private var venue_event_data:Dictionary;
         private var maxAttendance:Number = 0;
         private var maxNumberEvents:Number = 0;
+        private var totalGenres:Object;
         private var timeline:Timeline;
         
         private var con:Connection;
@@ -41,25 +42,27 @@ package conscape.components
         {
             return this.maxNumberEvents;
         }
+        public function getTotalGenres():Object
+        {
+            return this.totalGenres;
+        }
         private function dateChangeCallback(event:TimelineEvent):void
         {
             var startdate:String = MathsUtil.convertASDateToMySQLTimestamp(event.data.startdate);
             var enddate:String = MathsUtil.convertASDateToMySQLTimestamp(event.data.enddate);
             if (enddate) {
                 var query:String = [
-                    "SELECT venues.name, venues.lastfm_id, venues.geo_lat, venues.geo_long, events.attendance, events.title, events.startdate, events.anzahl, events.total_attendance",
-                    "FROM venues",
-                    "INNER JOIN (SELECT lastfm_venue_id, attendance, title, startdate, COUNT(*) AS anzahl, SUM(attendance) AS total_attendance FROM events",
-                    "WHERE startdate >= '" + startdate + "%' AND startdate <= '" + enddate + "%' GROUP BY lastfm_venue_id)",
-                    "events ON events.lastfm_venue_id = venues.lastfm_id GROUP BY events.lastfm_venue_id ORDER BY events.anzahl DESC"
+                    "SELECT lastfm_venue_id, COUNT(*) as number_events, SUM(attendance) as total_attendance, GROUP_CONCAT(genres SEPARATOR ',') as genre_list",
+                    "FROM events",
+                    "WHERE startdate BETWEEN '"+startdate+"' AND '"+enddate+"'",
+                    "GROUP BY lastfm_venue_id"
                     ].join(" ");   
             } else {
                 query = [
-                    "SELECT venues.name, venues.lastfm_id, venues.geo_lat, venues.geo_long, events.attendance, events.title, events.startdate, events.anzahl",
-                    "FROM venues",
-                    "INNER JOIN (SELECT lastfm_venue_id, attendance, title, startdate, COUNT(*) AS anzahl FROM events",
-                    "WHERE startdate LIKE '" + startdate + "%' GROUP BY lastfm_venue_id)",
-                    "events ON events.lastfm_venue_id = venues.lastfm_id GROUP BY events.lastfm_venue_id ORDER BY events.anzahl DESC"
+                    "SELECT lastfm_venue_id, COUNT(*) as number_events, SUM(attendance) as total_attendance, GROUP_CONCAT(genres SEPARATOR ',') as genre_list",
+                    "FROM events",
+                    "WHERE startdate Like '"+startdate+"'",
+                    "GROUP BY lastfm_venue_id"
                     ].join(" ");
             }
             
@@ -74,12 +77,28 @@ package conscape.components
                 venue_event_data = new Dictionary();
                 maxAttendance = 0;
                 maxNumberEvents = 0;
+                totalGenres = Genre.getGenreObject();
                 for each(var item:* in event.resultSet.getRows()) {
-                    venue_event_data[item["lastfm_id"]] = item;
-                    if (item["anzahl"] > maxNumberEvents) maxNumberEvents = item["anzahl"];
+                    var genres:Object = Genre.getGenreObject();
+                    if (item["genre_list"]) {
+                        for each(var genreName:String in String(item["genre_list"]).split(",")) {
+                            genres[genreName]["count"] += 1;
+                            totalGenres[genreName]["count"] += 1;
+                        }
+                    }
+                    venue_event_data[item["lastfm_venue_id"]] = {
+                        "numberEvents": item["number_events"],
+                        "totalAttendance": item["total_attendance"],
+                        "genres": genres
+                    };
+                    if (item["number_events"] > maxNumberEvents) maxNumberEvents = item["number_events"];
                     if (item["total_attendance"] > maxAttendance) maxAttendance = item["total_attendance"];
                 }
-                dispatchEvent(new CurrentDataProviderEvent(CurrentDataProviderEvent.CHANGE));
+                dispatchEvent(new CurrentDataProviderEvent(CurrentDataProviderEvent.CHANGE, {
+                    "maxNumberEvents": maxNumberEvents,
+                    "maxAttendance": maxAttendance,
+                    "totalGenres": totalGenres
+                }));
             });
         }
     }

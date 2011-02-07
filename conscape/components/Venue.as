@@ -37,7 +37,7 @@ package conscape.components
                 this.venue_data["geo_long"]
             );
         	
-        	this.display = new PieChart([1, 2]);
+        	this.display = new PieChart([1]);
             this.display.setRadius(1);
             this.display.draw();
             this.addChild(this.display);
@@ -59,12 +59,18 @@ package conscape.components
         }
         public function dataChangeCallback(event:CurrentDataProviderEvent):void
         {
-            var radius:Number = 1;
             this.eventData = this.currentDataProvider.getEventDataForVenue(this.getId());
             if (this.eventData) {
-                radius = 50 * (this.eventData["anzahl"] / this.currentDataProvider.getMaxNumberEvents());
+                this.display.setRadius(50 * (this.eventData["numberEvents"] / event.data.maxNumberEvents));
+                var chart_data:Array = [];
+                for each(var genreName:String in Genre.ORDER) {
+                    chart_data.push(eventData["genres"][genreName]["count"]);
+                }
+                this.display.setData(chart_data);
+            } else {
+                this.display.setRadius(1);
+                this.display.setData([1]);
             }
-            this.display.setRadius(radius);
             this.display.draw();
         }
         protected function bringToFront(e:MouseEvent):void

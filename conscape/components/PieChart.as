@@ -8,21 +8,14 @@ package conscape.components
 		private var chartData:Array;
 		private var percentages:Array;
 		private var shapes:Array;
-		private var colours:Array = [
-		    0xFF0000,
-		    0x00FF00,
-		    0x0000FF,
-		    0xFF0000,
-		    0x00FF00,
-		    0x0000FF,
-		    0xFF0000,
-		    0x00FF00
-		];
+		private var colours:Array;
+		
 		private var radius:Number = 1;
 		
         public function PieChart(_chartData:Array)
         {
             this.setData(_chartData);
+            this.colours = Genre.COLOURS;
             
         }
         public function setData(_chartData:Array):void
@@ -42,6 +35,10 @@ package conscape.components
                 this.chartData.push(_chartData);
             }
             this.calculatePercentages();
+        }
+        public function setColours(_colours):void
+        {
+            this.colours = _colours;
         }
         private function calculatePercentages():void
         {
