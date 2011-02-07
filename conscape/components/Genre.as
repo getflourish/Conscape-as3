@@ -1,8 +1,6 @@
 package conscape.components
 {
-    import flash.utils.Dictionary;
-    
-	public class Genre
+    public class Genre
 	{
 	    public static const ORDER:Array = [
 	        "pop",
@@ -18,7 +16,7 @@ package conscape.components
 	        0x000000,
 	        0xFF0000,
 	        0x0000FF,
-	        0xFF00FF,
+	        0x00FFFF,
 	        0x888888,
 	        0xFFFF00
 	    ];
@@ -33,7 +31,7 @@ package conscape.components
 		        "black": {"name": "Black", "colour": 0x000000, "count": 0},
 		        "latin": {"name": "Latin", "colour": 0xFF0000, "count": 0},
 		        "jazz": {"name": "Jazz", "colour": 0x0000FF, "count": 0},
-		        "rock": {"name": "Rock", "colour": 0xFF00FF, "count": 0},
+		        "rock": {"name": "Rock", "colour": 0x00FFFF, "count": 0},
 		        "metal": {"name": "Metal", "colour": 0x888888, "count": 0},
 		        "elektro": {"name": "Elektro", "colour": 0xFFFF00, "count": 0}
 		    };
