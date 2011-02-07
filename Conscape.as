@@ -76,6 +76,8 @@ package
         
         private var venues:Dictionary;
         private var currentDataProvider:CurrentDataProvider;
+        
+        private var genreChartBar:GenreChartBar;
 
         public function Conscape() 
         {
@@ -98,6 +100,11 @@ package
             createTimeline();
             currentDataProvider = new CurrentDataProvider(timeline, con);
             loadVenues();
+            
+            this.genreChartBar = new GenreChartBar(stage.stageHeight - 200, 100, currentDataProvider);
+            this.genreChartBar.x = stage.stageWidth - 200;
+            this.genreChartBar.y = 100;
+            stage.addChild(this.genreChartBar);
         }
         private function pause (event:KeyboardEvent):void
         {
