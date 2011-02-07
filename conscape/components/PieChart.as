@@ -49,7 +49,11 @@ package conscape.components
             this.percentages = [];
             var ratio = 100/total;
             for each(var amount2:Number in this.chartData) {
-                this.percentages.push(amount2*ratio/100);
+                if (amount2 > 0) {
+                    this.percentages.push(amount2*ratio/100);
+                } else {
+                    this.percentages.push(0);
+                }
             }
         }
         public function setRadius(_radius:Number):void
