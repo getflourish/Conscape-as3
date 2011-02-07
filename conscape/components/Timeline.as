@@ -24,8 +24,11 @@ package conscape.components
     import id.core.TouchSprite;
     import id.tracker.Tracker;
     
+    import nl.demonsters.debugger.MonsterDebugger;
+    
     public class Timeline extends TouchSprite
     {
+        private var debugger:MonsterDebugger;
         private var axisFormat:TextFormat;
         private var bounds:Rectangle;
         private var boundsRectangle:Shape;
@@ -61,6 +64,8 @@ package conscape.components
         
         public function Timeline (data:Array, width:Number=200, height:Number=100, padding:Number=15):void
         {
+            debugger = new MonsterDebugger(this);
+            
             this.data = data;
             this.fields = [];
             this.padding = padding;
@@ -89,6 +94,7 @@ package conscape.components
             this.scrollView.showsHorizontalScrollIndicator = true;
             this.scrollView.addEventListener(GestureEvent.GESTURE_SCALE, onPinch);
             this.scrollView.addEventListener(TouchEvent.TOUCH_UP, onTouchUp);
+            this.scrollView.addEventListener(TouchEvent.TOUCH_DOWN, onTouchDown);
             this.scrollView.addEventListener(ScrollEvent.SCROLL, onScroll);
             this.addChild(scrollView);
             
@@ -192,29 +198,32 @@ package conscape.components
         }
         private function onPinch (event:GestureEvent):void 
         {
-            trace(timeScale);
-            this.scrollView.disableScrolling();
+            
             if (timeScale >= 1) {
                 timeScale += event.value * 50;
             } else {
                 timeScale = 1;
             }  
-                
-            if (pinchCenterX == 0) pinchCenterX = event.localX;
-            var ratio:Number = pinchCenterX / scrollView.getBoundingRectangle().width;
-            trace("w: " + scrollView.getBoundingRectangle().width);
-            var oldW:Number = graph.width;
+            pinchCenterX = (scrollView.fingers[0].x + scrollView.fingers[1].x) / 2;
+            // Verhältnis vom Mittelpunkt der Finger zur Breite der Scrollview
+            var ratio:Number = Math.abs(scrollView.content.x - pinchCenterX) / scrollView.width;
+            var oldW:Number = scrollView.width;
             update();
             fireRangeChange();
             updateAxis();
-            var newW:Number = graph.width;
+            
+            var newW:Number = scrollView.width;
             scrollView.content.x += (oldW - newW) * ratio;
             scrollView.updateScrollIndicators();
+
+        }
+        private function onTouchDown (event:TouchEvent):void
+        {
+
         }
         private function onTouchUp (event:TouchEvent):void
         {
-            if (Tracker.getInstance().tactualObjectCount == 1) pinchCenterX = 0;
-            this.scrollView.enableScrolling(ScrollView.HORIZONTAL);
+            pinchCenterX = 0;
             fireRangeChange();
         }
         private function parseData ():void

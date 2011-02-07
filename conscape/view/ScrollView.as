@@ -59,6 +59,7 @@ package conscape.view
 		public var bounceEnabled:Boolean = true;
 		public var content:TouchSprite;
 		public var directionalLock:String = FREE;
+        public var fingers:Array;
 		public var scalingEnabled:Boolean = false;
 		public var scrollEnabled:Boolean = true;
 		public var scrollsToTop:Boolean = true;
@@ -69,6 +70,7 @@ package conscape.view
 		{
 			this.bwidth = _width; 
 			this.bheight = _height;
+			this.fingers = [];
 		
 			// Content, dem von außerhalb irgendwas hinzugefügt werden kann, was scrollbar sein soll
 			this.content = new TouchSprite();
@@ -188,6 +190,7 @@ package conscape.view
 		private function createScrollIndicators ():void
 		{
 			horizontalScrollIndicator = new Sprite();
+			horizontalScrollIndicator.name = "hsi";
 			addChild(horizontalScrollIndicator);
 			
 			verticalScrollIndicator = new Sprite();
@@ -249,6 +252,7 @@ package conscape.view
 		}
 		private function hideScrollIndicators (instant:Boolean = false):void
 		{
+		    trace("hide");
 			if(instant) {
 				horizontalScrollIndicator.alpha = 0;
 				verticalScrollIndicator.alpha = 0;				
@@ -282,70 +286,88 @@ package conscape.view
 		}
 		private function scrollEnd(event:TouchEvent):void 
 		{	
+		    var index:Number = -1;
+            for (var i:Number = 0; i < fingers.length; i++) {
+                if (fingers[i] == event.tactualObject) {
+                    index = i;
+                }
+            }
+            if (index != -1) fingers.splice(index, 1);
+            trace(fingers.length);
 			// TODO: Irgendwann mal aufräumen
 			
-			var destX, destY:Number;
-			var bounceX = true;
-			var bounceY = true;
-			
-			if (!isScrolling()) hideScrollIndicators();
-			
-			if(bounceEnabled){
-				if(content.x > 0){
-					// Nach links
-					destX = 0;
-				} else if (content.x < -content.width + bounds.width && content.width > this.bwidth){
-					// Nach rechts		
-					destX = -content.width + bounds.width;
-				} else if (content.x < -content.width + bounds.width && content.width < this.bwidth){
-					destX = 0;
-				} else {
-					destX = content.x;
-					bounceX = false;
-				}
+			if (fingers.length == 0) {
+			    var destX, destY:Number;
+    			var bounceX = true;
+    			var bounceY = true;
 
-				if(content.y > 0){
-					// Nach oben
-					destY = 0;
-				} else if (content.y < -content.height + bounds.height && content.height > this.bheight){
-					// Nach unten	
-					destY = -content.height + bounds.height;
-				} else if (content.y < -content.height + bounds.height && content.height < this.bheight){
-					destY = 0;
-				} else {
-					destY = content.y;
-					bounceY = false;
-				}
-				
-				switch(directionalLock) {
-					case FREE:
-						if (bounceX || bounceY) tweenScrollTo(destX, destY, 0.5);
-						break;
-					case HORIZONTAL:
-						if (bounceX) tweenScrollTo(destX, destY, 0.5);
-						break;
-					case VERTICAL:
-						if(bounceY) tweenScrollTo(destX, destY, 0.5);
-						break;
-				}
+    			if (!isScrolling()) hideScrollIndicators();
+
+    			if(bounceEnabled){
+    				if(content.x > 0){
+    					// Nach links
+    					destX = 0;
+    				} else if (content.x < -content.width + bounds.width && content.width > this.bwidth){
+    					// Nach rechts		
+    					destX = -content.width + bounds.width;
+    				} else if (content.x < -content.width + bounds.width && content.width < this.bwidth){
+    					destX = 0;
+    				} else {
+    					destX = content.x;
+    					bounceX = false;
+    				}
+
+    				if(content.y > 0){
+    					// Nach oben
+    					destY = 0;
+    				} else if (content.y < -content.height + bounds.height && content.height > this.bheight){
+    					// Nach unten	
+    					destY = -content.height + bounds.height;
+    				} else if (content.y < -content.height + bounds.height && content.height < this.bheight){
+    					destY = 0;
+    				} else {
+    					destY = content.y;
+    					bounceY = false;
+    				}
+
+    				switch(directionalLock) {
+    					case FREE:
+    						if (bounceX || bounceY) tweenScrollTo(destX, destY, 0.5);
+    						break;
+    					case HORIZONTAL:
+    						if (bounceX) tweenScrollTo(destX, destY, 0.5);
+    						break;
+    					case VERTICAL:
+    						if(bounceY) tweenScrollTo(destX, destY, 0.5);
+    						break;
+    				}
+    			}
+    			addEventListener(TouchEvent.TOUCH_DOWN, scrollStart);
+    			removeEventListener(GestureEvent.GESTURE_FLICK, gestureFlickHandler);
+    		    removeEventListener(TouchEvent.TOUCH_UP, scrollEnd);	
+    			removeEventListener(TouchEvent.TOUCH_MOVE, scroll);
+			} else {
+             
 			}
-			addEventListener(TouchEvent.TOUCH_DOWN, scrollStart);
-			removeEventListener(GestureEvent.GESTURE_FLICK, gestureFlickHandler);
-			removeEventListener(TouchEvent.TOUCH_UP, scrollEnd);
-			removeEventListener(TouchEvent.TOUCH_MOVE, scroll);
 		}
 		private function scrollStart (event:TouchEvent):void 
 		{
-			// TODO: Irgendwie gibt's noch ein Problem, wenn ein Tween läuft und man dann normal scrollt
-			TweenLite.killTweensOf(content);
-			scrolling = false;
-			lastX = event.stageX;
-			lastY = event.stageY;
-			
-			addEventListener(GestureEvent.GESTURE_FLICK, gestureFlickHandler);
-			addEventListener(TouchEvent.TOUCH_UP, scrollEnd);
-			addEventListener(TouchEvent.TOUCH_MOVE, scroll);
-			removeEventListener(TouchEvent.TOUCH_DOWN, scrollStart);
+		    fingers.push(event.tactualObject);
+
+		    if (fingers.length == 1) {
+		        // TODO: Irgendwie gibt's noch ein Problem, wenn ein Tween läuft und man dann normal scrollt
+    			TweenLite.killTweensOf(content);
+    			scrolling = false;
+    			lastX = event.stageX;
+    			lastY = event.stageY;
+    			addEventListener(GestureEvent.GESTURE_FLICK, gestureFlickHandler);
+    			addEventListener(TouchEvent.TOUCH_UP, scrollEnd);
+    			addEventListener(TouchEvent.TOUCH_MOVE, scroll);
+		    } else { 
+                removeEventListener(TouchEvent.TOUCH_MOVE, scroll);
+                removeEventListener(GestureEvent.GESTURE_FLICK, gestureFlickHandler);
+                removeEventListener(TouchEvent.TOUCH_DOWN, scrollStart);
+		    }
 		}
 		public function scrollTo (destX:Number, destY:Number):void 
 		{
@@ -423,6 +445,7 @@ package conscape.view
 		public function updateScrollIndicators ():void
 		{
 			if (showsVerticalScrollIndicator) {
+			    showScrollIndicators();
 				var sy:Number = (-content.y / content.height) * bounds.height;
 				var h:Number = (bounds.height / content.height) * bounds.height;
 				// Unterer Rand drüber hinaus
@@ -443,6 +466,7 @@ package conscape.view
 			}
 			
 			if (showsHorizontalScrollIndicator) {
+			    showScrollIndicators();
 				var sx:Number = (-content.x / content.width) * bounds.width;
 				var w:Number = (bounds.width / content.width) * bounds.width;
 				// Rechter Rand
@@ -454,7 +478,6 @@ package conscape.view
 					w = w + sx;
 					sx = 0;
 				}
-				
 				horizontalScrollIndicator.graphics.clear();
 				horizontalScrollIndicator.graphics.beginFill(0x000000, 1);
 				horizontalScrollIndicator.graphics.drawRoundRect(0, bounds.height - scrollIndicatorThickness, w, scrollIndicatorThickness, 10);
