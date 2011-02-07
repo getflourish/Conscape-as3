@@ -2,6 +2,7 @@ package conscape.components
 {
     import conscape.events.*;
     import conscape.util.MathsUtil;
+    import conscape.util.Dates;
     import conscape.view.ScrollView;
     
     import flash.display.Sprite;
@@ -38,6 +39,7 @@ package conscape.components
         private var dateLabelPaddingY:Number = 5;
         private var dateAxis:Sprite;
         private var dictionary:Dictionary;
+        private var end:Date;
         private var fields:Array;
         private var graph:Sprite;
         private var graphBounds:Rectangle;
@@ -53,6 +55,7 @@ package conscape.components
         private var maxDate:Date;
         private var padding:Number = 15;
         private var pinchCenterX:Number = 0;
+        private var start:Date;
         private var timeScale:Number = 1;
         private var title:TextField;
         private var titleFormat:TextFormat;
@@ -168,8 +171,8 @@ package conscape.components
         {
             var b:Rectangle = scrollView.getBoundingRectangle();
             var deltaX:Number = Math.abs(scrollView.content.x);
-            var start:Date = getDateForX(deltaX);
-            var end:Date = getDateForX(deltaX + b.width);
+            start = getDateForX(deltaX);
+            end = getDateForX(deltaX + b.width);
             var data:Object = {"startdate":start, "enddate":end};
             this.dispatchEvent(new TimelineEvent(TimelineEvent.RANGECHANGE, data));
         }
@@ -241,6 +244,8 @@ package conscape.components
             
             this.minDate = MathsUtil.convertMySQLDateToActionscript(String(data[0][xAxis]));
             this.maxDate = MathsUtil.convertMySQLDateToActionscript(String(data[data.length-1][xAxis]));
+            this.start = minDate;
+            this.end = maxDate;
         }
         private function parseFields ():void
         {
@@ -293,6 +298,9 @@ package conscape.components
         }
         private function updateAxis():void
         {
+            // Den angezeigten Zeitraum berechnen und entscheiden welche Zeiteinteilung benutzt wird
+            var span:Number = Dates.timeSpan(start, end);
+            trace(start + " / " + span);
             // bestehende Beschriftung löschen
             while (dateAxis.numChildren) {
             	dateAxis.removeChildAt(0);

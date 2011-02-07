@@ -2,6 +2,7 @@ package conscape.components
 {
     import flash.utils.Dictionary;
     import flash.events.EventDispatcher;
+    import flash.events.ErrorEvent;
     
     import conscape.events.*;
     import conscape.util.MathsUtil;
@@ -108,6 +109,7 @@ package conscape.components
                     "totalGenreCount": totalGenreCount
                 }));
             });
+            
         }
     }
 }

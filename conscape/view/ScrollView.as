@@ -252,7 +252,6 @@ package conscape.view
 		}
 		private function hideScrollIndicators (instant:Boolean = false):void
 		{
-		    trace("hide");
 			if(instant) {
 				horizontalScrollIndicator.alpha = 0;
 				verticalScrollIndicator.alpha = 0;				
@@ -293,7 +292,6 @@ package conscape.view
                 }
             }
             if (index != -1) fingers.splice(index, 1);
-            trace(fingers.length);
 			// TODO: Irgendwann mal aufräumen
 			
 			if (fingers.length == 0) {
