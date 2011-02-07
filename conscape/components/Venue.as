@@ -62,7 +62,7 @@ package conscape.components
             var radius:Number = 1;
             this.eventData = this.currentDataProvider.getEventDataForVenue(this.getId());
             if (this.eventData) {
-                radius = 50 * (this.eventData["anzahl"] / this.currentDataProvider.getMaxNumberEvents());
+                radius = 50 * (this.eventData["numberEvents"] / event.data.maxNumberEvents);
             }
             this.display.setRadius(radius);
             this.display.draw();
