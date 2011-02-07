@@ -4,7 +4,7 @@ package conscape.components
     import conscape.util.MathsUtil;
     import conscape.util.Dates;
     import conscape.view.ScrollView;
-    
+
     import flash.display.Sprite;
     import flash.display.Graphics;
     import flash.display.LineScaleMode;
@@ -18,15 +18,15 @@ package conscape.components
     import flash.text.TextField;
     import flash.text.TextFormat;
     import flash.utils.Dictionary;
-    
+
     import gl.events.TouchEvent;
     import gl.events.GestureEvent;
-    
+
     import id.core.TouchSprite;
     import id.tracker.Tracker;
-    
+
     import nl.demonsters.debugger.MonsterDebugger;
-    
+
     public class Timeline extends TouchSprite
     {
         private var debugger:MonsterDebugger;
@@ -53,6 +53,7 @@ package conscape.components
         private var minYValue:Number;
         private var minDate:Date;
         private var maxDate:Date;
+        private var numberOfDays:Number = 0;
         private var padding:Number = 15;
         private var pinchCenterX:Number = 0;
         private var startdate:Date;
@@ -65,9 +66,9 @@ package conscape.components
         private var yAxis:String;
         private var dateForX:Array;
         private var dayWidth:Number;
-        
+
         public var graphColor:uint = 0x000000;
-        
+
         public function Timeline (data:Array, width:Number=200, height:Number=100, padding:Number=15):void
         {
             this.data = data;
@@ -89,7 +90,7 @@ package conscape.components
             // Das Diagramm, das aus Graphen und Beschriftung besteht
             this.graph = new Sprite();
             this.addChild(graph);
-        	
+
         	// Scrollview, worin sich das Diagramm befindet
             this.scrollView = new ScrollView(bounds.width, bounds.height, graph);
             this.scrollView.x = 0;
@@ -101,7 +102,7 @@ package conscape.components
             this.scrollView.addEventListener(TouchEvent.TOUCH_DOWN, onTouchDown);
             this.scrollView.addEventListener(ScrollEvent.SCROLL, onScroll);
             this.addChild(scrollView);
-            
+
             // Hintergrund
             background = new Sprite();
 			boundsRectangle = new Shape();
@@ -110,9 +111,9 @@ package conscape.components
 			boundsRectangle.graphics.endFill();
 			background.addChild(boundsRectangle);
 			scrollView.content.addChild(background);
-			
+
 			// Titel des Diagrams (wird vom Hauptprogramm gesetzt)
-            
+
 			this.title = new TextField();
 			this.addChild(title);
             this.title.width = graphBounds.width;
@@ -120,9 +121,9 @@ package conscape.components
             this.title.y = -padding - Number(titleFormat.size);
             this.title.selectable = false;
             this.title.text = "BLA";
-            
+
             this.title.setTextFormat(titleFormat);
-			
+
 			// Die Achsenbeschriftung der Zeitachse
 			this.dateAxis = new Sprite();
 			this.dateAxis.x = 0;
@@ -132,23 +133,23 @@ package conscape.components
 		private function initFormats ():void
 		{
 		    Font.registerFont(LabelFont);
-		    
+
 		    // Ein paar Textformatierungen
 		    titleFormat = new TextFormat();
             titleFormat.color = 0x000000;
             titleFormat.size = 18;
             titleFormat.font = "Helvetica";
-            
+
             axisFormat = new TextFormat();
             axisFormat.color = graphColor;
             axisFormat.size = 14;
             axisFormat.font = "Helvetica";
 		}
         public function initMapping ():void
-        {      
-            eventsForDate = new Dictionary();      
+        {
+            eventsForDate = new Dictionary();
             dateForX = [];
-            
+
             // this.parseData();
             trace(data[0]["startdate"]);
             for each(var row:Object in data) {
@@ -183,10 +184,9 @@ package conscape.components
                 } else {
                     tage[n]["y"] = 0;
                 }
-                // Noch mehr Sachen machen? Keine Ahnung.
                 now = Dates.addDays(now, 1);
                 d++;
-            }  
+            }
         }
         private function drawBounds(width:Number=0, height:Number = 0):void
         {
@@ -197,12 +197,16 @@ package conscape.components
         }
         private function fireRangeChange():void
         {
-            
             var b:Rectangle = scrollView.getBoundingRectangle();
             var deltaX:Number = Math.abs(scrollView.content.x);
             startdate = MathsUtil.convertMySQLDateToActionscript(getDateForX(deltaX));
             enddate = MathsUtil.convertMySQLDateToActionscript(getDateForX(deltaX + b.width));
-            var data:Object = {"startdate":startdate, "enddate":enddate};
+            numberOfDays = getNumberOfDaysForXX(deltaX, deltaX+b.width);
+            var data:Object = {
+                "startdate":startdate,
+                "enddate":enddate,
+                "numberOfDays": numberOfDays
+            };
             this.dispatchEvent(new TimelineEvent(TimelineEvent.RANGECHANGE, data));
         }
         public function getDateForX (x:Number):String
@@ -210,11 +214,15 @@ package conscape.components
             var tag:Number = Math.floor(x / (dayWidth*timeScale));
             if (tag >= dateForX.length) tag = dateForX.length-1;
             return dateForX[tag];
+        }
+        private function getNumberOfDaysForXX(x1:Number, x2:Number):Number
+        {
+            var tag1:Number = Math.floor(x1 / (dayWidth*timeScale));
+            if (tag1 >= dateForX.length) tag1 = dateForX.length-1;
+            var tag2:Number = Math.floor(x2 / (dayWidth*timeScale));
+            if (tag2 >= dateForX.length) tag2 = dateForX.length-1;
             
-            //var b:Rectangle = scrollView.getBoundingRectangle();
-            //x = MathsUtil.map(x, 0, graph.width, minDate.getTime(), maxDate.getTime());
-            //var d:Date = new Date(x);
-            /*return d;*/
+            return tag2 - tag1;
         }
         public function getXForDate (date:Date):Number
         {
@@ -231,21 +239,20 @@ package conscape.components
         {
             fireRangeChange();
         }
-        private function onPinch (event:GestureEvent):void 
+        private function onPinch (event:GestureEvent):void
         {
-            
             if (timeScale >= 1) {
                 timeScale += event.value * 50;
             } else {
                 timeScale = 1;
-            }  
+            }
             pinchCenterX = (scrollView.fingers[0].x + scrollView.fingers[1].x) / 2;
             // Verhältnis vom Mittelpunkt der Finger zur Breite der Scrollview
             var ratio:Number = Math.abs(scrollView.content.x - pinchCenterX) / scrollView.width;
             var oldW:Number = scrollView.width;
             fireRangeChange();
             update();
-            
+
             var newW:Number = scrollView.width;
             scrollView.content.x += (oldW - newW) * ratio;
             scrollView.updateScrollIndicators();
@@ -269,7 +276,7 @@ package conscape.components
             this.maxYValue = 0;
             for each(var o:Object in data) {
                 if (o[yAxis] > this.maxYValue) this.maxYValue = o[yAxis];
-            }  
+            }
             trace(data[0][xAxis]);
             this.minDate = MathsUtil.convertMySQLDateToActionscript(data[0][xAxis]);
             this.maxDate = MathsUtil.convertMySQLDateToActionscript(data[data.length-1][xAxis]);
@@ -287,13 +294,13 @@ package conscape.components
         public function setAxis (xAxis:String, yAxis:String):void
         {
             this.xAxis = xAxis;
-            this.yAxis = yAxis; 
+            this.yAxis = yAxis;
             parseData();
             initMapping();
             update();
             fireRangeChange();
         }
-        public function setBounds(b:Rectangle):void 
+        public function setBounds(b:Rectangle):void
         {
             this.bounds = b;
         }
@@ -303,13 +310,13 @@ package conscape.components
             this.title.setTextFormat(titleFormat);
         }
         public function update ():void
-        {   
-                       
+        {
+
             var now:Date = startdate;
             drawBounds(scrollView.getBoundingRectangle().width * timeScale, scrollView.getBoundingRectangle().height);
             // Balken zeichnen
             var bottom:Number = scrollView.getBoundingRectangle().height - dateLabelHeight;
-            
+
             graph.graphics.clear();
             graph.graphics.lineStyle(timeScale / 2, graphColor, 1, false, LineScaleMode.NONE, CapsStyle.NONE, JointStyle.BEVEL);
             while (now <= enddate) {
@@ -326,35 +333,7 @@ package conscape.components
                 }
                 now = Dates.addDays(now, 1);
             }
-            
-        }
-        /*private function updateAxis():void
-        {
-            // Den angezeigten Zeitraum berechnen und entscheiden welche Zeiteinteilung benutzt wird
-            var span:Number = Dates.timeSpan(start, end);
-            trace(start + " / " + span);
-            // bestehende Beschriftung löschen
-            while (dateAxis.numChildren) {
-            	dateAxis.removeChildAt(0);
-            }
-            // Schauen wieviele Jahre es im Zeitraum gibt und in gleichen Abständen Jahreszahlen an die Achse schreiben
-            var numDates:Number = maxDate.fullYear - minDate.fullYear;
-            var spacing:Number = scrollView.content.width / numDates;
-            var x:Number = 0;
-            for (var i:Number = 0; i < numDates; i++) {
-                var dateLabel:TextField = new TextField();  
-                dateAxis.addChild(dateLabel);
-                dateLabel.width = dateLabelWidth;
-                dateLabel.x = x;
-                dateLabel.y = dateLabelPaddingY;
-                dateLabel.text = "’" + String(getDateForX(x).fullYear).slice(2);
-                dateLabel.selectable = false;
 
-                dateLabel.setTextFormat(axisFormat);
-                
-                x += spacing;
-            }
         }
-        */
     }
 }
