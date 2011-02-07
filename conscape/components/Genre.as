@@ -4,6 +4,25 @@ package conscape.components
     
 	public class Genre
 	{
+	    public static const ORDER:Array = [
+	        "pop",
+	        "black",
+	        "latin",
+	        "jazz",
+	        "rock",
+	        "metal",
+	        "elektro"
+	    ];
+	    public static const COLOURS:Array = [
+	        0xFFFFFF,
+	        0x000000,
+	        0xFF0000,
+	        0x0000FF,
+	        0xFF00FF,
+	        0x888888,
+	        0xFFFF00
+	    ];
+	    
 		public function Genre()
 		{
 		}
