@@ -2,6 +2,7 @@ package conscape.components
 {
     import flash.utils.Dictionary;
     import flash.events.EventDispatcher;
+    import flash.events.ErrorEvent;
     
     import conscape.events.*;
     import conscape.util.MathsUtil;
@@ -82,8 +83,8 @@ package conscape.components
                     var genres:Object = Genre.getGenreObject();
                     if (item["genre_list"]) {
                         for each(var genreName:String in String(item["genre_list"]).split(",")) {
-                            genres[genreName]["count"] += 1;
-                            totalGenres[genreName]["count"] += 1;
+                                genres[genreName]["count"] += 1;
+                                totalGenres[genreName]["count"] += 1;   
                         }
                     }
                     venue_event_data[item["lastfm_venue_id"]] = {
@@ -100,6 +101,7 @@ package conscape.components
                     "totalGenres": totalGenres
                 }));
             });
+            
         }
     }
 }
