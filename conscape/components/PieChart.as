@@ -73,7 +73,7 @@ package conscape.components
         public static function drawWedge(_shape:Shape, _radius:Number, _percent:Number, _colour:uint = 0xFF0000, _rotationOffset:Number = 0):void
         {      
             var _arc:Number = 360*_percent
-            _shape.graphics.beginFill (_colour,100);
+            _shape.graphics.beginFill(_colour,100);
 
             var segAngle, theta, angle, angleMid, segs, ax, ay, bx, by, cx, cy;
             _shape.graphics.moveTo(0, 0);

@@ -20,6 +20,7 @@ package conscape.components
         private var maxAttendance:Number = 0;
         private var maxNumberEvents:Number = 0;
         private var totalGenres:Object;
+        private var totalGenreCount:Number;
         private var timeline:Timeline;
         
         private var con:Connection;
@@ -46,6 +47,10 @@ package conscape.components
         public function getTotalGenres():Object
         {
             return this.totalGenres;
+        }
+        public function getTotalGenreCount():Number
+        {
+            return this.totalGenreCount;
         }
         private function dateChangeCallback(event:TimelineEvent):void
         {
@@ -78,13 +83,15 @@ package conscape.components
                 venue_event_data = new Dictionary();
                 maxAttendance = 0;
                 maxNumberEvents = 0;
+                totalGenreCount = 0;
                 totalGenres = Genre.getGenreObject();
                 for each(var item:* in event.resultSet.getRows()) {
                     var genres:Object = Genre.getGenreObject();
                     if (item["genre_list"]) {
                         for each(var genreName:String in String(item["genre_list"]).split(",")) {
-                                genres[genreName]["count"] += 1;
-                                totalGenres[genreName]["count"] += 1;   
+                            genres[genreName]["count"] += 1;
+                            totalGenres[genreName]["count"] += 1;
+                            totalGenreCount += 1;
                         }
                     }
                     venue_event_data[item["lastfm_venue_id"]] = {
@@ -98,7 +105,8 @@ package conscape.components
                 dispatchEvent(new CurrentDataProviderEvent(CurrentDataProviderEvent.CHANGE, {
                     "maxNumberEvents": maxNumberEvents,
                     "maxAttendance": maxAttendance,
-                    "totalGenres": totalGenres
+                    "totalGenres": totalGenres,
+                    "totalGenreCount": totalGenreCount
                 }));
             });
         }
