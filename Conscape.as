@@ -20,7 +20,7 @@ package
     
     import conscape.components.*;
     import conscape.events.*;
-    import conscape.util.MathsUtil;
+    import conscape.util.*;
     
     import flash.display.StageAlign;
     import flash.display.StageScaleMode;
@@ -105,6 +105,9 @@ package
             this.genreChartBar.x = stage.stageWidth - 200;
             this.genreChartBar.y = 100;
             stage.addChild(this.genreChartBar);
+            
+            var fpsCounter:FPSCounter = new FPSCounter();
+            stage.addChild(fpsCounter);
         }
         private function pause (event:KeyboardEvent):void
         {
@@ -126,7 +129,7 @@ package
                 stage.stageWidth, 
                 stage.stageHeight, 
                 true,
-            	new CloudmadeProvider(10,18,"c1862c9125834b9fa203084d73eba088", 999),
+            	new CloudmadeProvider(10,18,"c1862c9125834b9fa203084d73eba088", 19816),
             	new Location(52.522, 13.405),
                 currentScale);
             map.x = map.y = 0;
@@ -176,7 +179,7 @@ package
             token.addEventListener(MySqlEvent.RESULT, function(event:MySqlEvent)
             {
                 for each(var venue_data:* in event.resultSet.getRows()) {
-                    var venue:Venue = new Venue(venue_data, currentDataProvider)
+                    var venue:Venue = new Venue(venue_data, currentDataProvider, map)
                     venues[venue.getId()] = venue;
                     map.putMarker(venue.getLocation(), venue);
                 }
