@@ -20,7 +20,7 @@ package
     
     import conscape.components.*;
     import conscape.events.*;
-    import conscape.util.MathsUtil;
+    import conscape.util.*;
     
     import flash.display.StageAlign;
     import flash.display.StageScaleMode;
@@ -83,6 +83,10 @@ package
             this.settingsPath = "application.xml";
 			super();
 
+            var fps:FPSCounter = new FPSCounter();
+            fps.x = stage.stageWidth - 100;
+            addChild(fps);
+            
             debugger = new MonsterDebugger(this);
                 
         	// Falls die Fenstergröße verändert wird (später unnötig aber mal gut zu sehen, wie es geht)

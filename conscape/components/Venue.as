@@ -27,7 +27,7 @@ package conscape.components
         	buttonMode = true;
         	mouseChildren = false;
         	tabEnabled = false;        	
-        	cacheAsBitmap = true;
+        	//cacheAsBitmap = true;
         	
         	this.currentDataProvider = _currentDataProvider;
         	this.currentDataProvider.addEventListener(CurrentDataProviderEvent.CHANGE, dataChangeCallback);
@@ -71,7 +71,7 @@ package conscape.components
                 this.display.setRadius(1);
                 this.display.setData([1]);
             }
-            this.display.draw();
+             this.display.draw();
         }
         protected function bringToFront(e:MouseEvent):void
         {

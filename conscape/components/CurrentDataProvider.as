@@ -101,7 +101,6 @@ package conscape.components
                     "totalGenres": totalGenres
                 }));
             });
-            
         }
     }
 }
