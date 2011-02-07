@@ -61,7 +61,8 @@ package conscape.components
         {
             this.eventData = this.currentDataProvider.getEventDataForVenue(this.getId());
             if (this.eventData) {
-                this.display.setRadius(50 * (this.eventData["numberEvents"] / event.data.maxNumberEvents));
+                this.display.setRadius(0.25 * Math.sqrt(this.eventData["totalAttendance"]));
+                /*this.display.alpha = 0.05 * Math.sqrt(this.eventData["numberEvents"]);*/
                 var chart_data:Array = [];
                 for each(var genreName:String in Genre.ORDER) {
                     chart_data.push(eventData["genres"][genreName]["count"]);
