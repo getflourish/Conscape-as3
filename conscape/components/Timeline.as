@@ -38,8 +38,8 @@ package conscape.components
         private var dateLabelWidth:Number = 50;
         private var dateLabelPaddingY:Number = 5;
         private var dateAxis:Sprite;
-        private var dictionary:Dictionary;
-        private var end:Date;
+        private var eventsForDate:Dictionary;
+        private var enddate:Date;
         private var fields:Array;
         private var graph:Sprite;
         private var graphBounds:Rectangle;
@@ -55,7 +55,8 @@ package conscape.components
         private var maxDate:Date;
         private var padding:Number = 15;
         private var pinchCenterX:Number = 0;
-        private var start:Date;
+        private var startdate:Date;
+        private var tage:Dictionary;
         private var timeScale:Number = 1;
         private var title:TextField;
         private var titleFormat:TextFormat;
@@ -144,21 +145,46 @@ package conscape.components
             axisFormat.font = "Helvetica";
 		}
         public function initMapping ():void
-        {            
-            this.parseData();
-            this.mapping = [];
-            this.dictionary = new Dictionary(true);
-            var x:Number = 0;
-            var y:Number = 0;
-            for each (var o:Object in data) {
-                var d:Date = MathsUtil.convertMySQLDateToActionscript(String(o[xAxis]));
-                x = d.getTime();
-                x = MathsUtil.map(x, minDate.getTime(), maxDate.getTime(), 0, graphBounds.width);
-                y = o[yAxis];
-                y = MathsUtil.map(y, 0, maxYValue, 0, graphBounds.height);
-                this.mapping.push({"date":d, "x":x, "y":y});
-                this.dictionary[d] = x;
+        {      
+            eventsForDate = new Dictionary();      
+            // this.parseData();
+            trace(data[0]["startdate"]);
+            for each(var row:Object in data) {
+                eventsForDate[row["startdate"]] = row;
             }
+
+            // Anzahl aller Tage
+            var gesamteAnzahlTage:Number = 0;
+            var now:Date = startdate;
+            tage = new Dictionary();
+            while (now <= enddate) {
+                gesamteAnzahlTage += 1;
+                var tag:Object = {}
+                if (eventsForDate[MathsUtil.getMySQLDate(now)]) {
+                    tag = eventsForDate[MathsUtil.getMySQLDate(now)];
+                } else {
+                    //trace("nooooooo");
+                    //trace(now);
+                }
+                tage[MathsUtil.getMySQLDate(now)] = tag;
+                now = Dates.addDays(now, 1);
+            }
+            eventsForDate = null;
+
+            var d:Number = 1;
+            now = startdate;
+            while (now <= enddate) {
+                var n:String = MathsUtil.getMySQLDate(now);
+                tage[n]["x"] = (scrollView.getBoundingRectangle().width / gesamteAnzahlTage) * d;
+                if (tage[n]["anzahl"]) {
+                    tage[n]["y"] = (tage[n]["anzahl"] / maxYValue) * graphBounds.height;
+                } else {
+                    tage[n]["y"] = 0;
+                }
+                // Noch mehr Sachen machen? Keine Ahnung.
+                now = Dates.addDays(now, 1);
+                d++;
+            }  
         }
         private function drawBounds(width:Number=0, height:Number = 0):void
         {
@@ -171,9 +197,9 @@ package conscape.components
         {
             var b:Rectangle = scrollView.getBoundingRectangle();
             var deltaX:Number = Math.abs(scrollView.content.x);
-            start = getDateForX(deltaX);
-            end = getDateForX(deltaX + b.width);
-            var data:Object = {"startdate":start, "enddate":end};
+            startdate = getDateForX(deltaX);
+            enddate = getDateForX(deltaX + b.width);
+            var data:Object = {"startdate":startdate, "enddate":enddate};
             this.dispatchEvent(new TimelineEvent(TimelineEvent.RANGECHANGE, data));
         }
         public function getDateForX (x:Number):Date
@@ -213,7 +239,6 @@ package conscape.components
             var oldW:Number = scrollView.width;
             update();
             fireRangeChange();
-            updateAxis();
             
             var newW:Number = scrollView.width;
             scrollView.content.x += (oldW - newW) * ratio;
@@ -234,18 +259,15 @@ package conscape.components
             // Irgendwann mal schauen ob die Daten sortiert sind
             if (xAxis == "" && yAxis == "") parseFields();
             // Grenzwerte für die Interpolation
-            
             this.maxYValue = 0;
             for each(var o:Object in data) {
                 if (o[yAxis] > this.maxYValue) this.maxYValue = o[yAxis];
             }  
-            this.minXValue = Number(data[0][xAxis]);
-            this.minYValue = 0;
-            
-            this.minDate = MathsUtil.convertMySQLDateToActionscript(String(data[0][xAxis]));
-            this.maxDate = MathsUtil.convertMySQLDateToActionscript(String(data[data.length-1][xAxis]));
-            this.start = minDate;
-            this.end = maxDate;
+            trace(data[0][xAxis]);
+            this.minDate = MathsUtil.convertMySQLDateToActionscript(data[0][xAxis]);
+            this.maxDate = MathsUtil.convertMySQLDateToActionscript(data[data.length-1][xAxis]);
+            this.startdate = minDate;
+            this.enddate = maxDate;
         }
         private function parseFields ():void
         {
@@ -262,7 +284,6 @@ package conscape.components
             parseData();
             initMapping();
             update();
-            updateAxis();
             fireRangeChange();
         }
         public function setBounds(b:Rectangle):void 
@@ -276,27 +297,35 @@ package conscape.components
         }
         public function update ():void
         {               
-            var x:Number = 0;
-            var y:Number = 0;
-            var n:Number = 0;
+            var anzahlTage:Number = 0;
+            var now:Date = startdate;
+            while (now <= enddate) {
+                anzahlTage += 1;
+                now = Dates.addDays(now, 1);
+            }
+
+            now = startdate;
             
+            // Balken zeichnen
+            var bottom:Number = scrollView.getBoundingRectangle().height - dateLabelHeight;
             graph.graphics.clear();
             graph.graphics.lineStyle(timeScale / 2, graphColor, 1, false, LineScaleMode.NONE, CapsStyle.NONE, JointStyle.BEVEL);
-            graph.graphics.moveTo(0, 0);
+            while (now <= enddate) {
+                var n:String = MathsUtil.getMySQLDate(now);
+                if (tage[n]) {
+                    var x:Number = tage[n]["x"] * timeScale;
+                    var y:Number = tage[n]["y"];
+                    graph.graphics.moveTo(x, bottom);
+                    graph.graphics.lineTo(x, bottom - y);
 
-            var deltaX:Number = 100;
-            var bottom:Number = bounds.height - dateLabelHeight;
-            for each (var o:Object in mapping) {
-                x = o.x * timeScale;
-                y = o.y;
-                graph.graphics.moveTo(x, bottom);
-                graph.graphics.lineTo(x, bottom - y);
+                    //if (now.dayOfMonth == 1) {
+                        // malLabel();
+                    //}
+                }
+                now = Dates.addDays(now, 1);
             }
-            deltaX = Math.abs(scrollView.content.x);
-            var d:Date = getDateForX(deltaX);
-            updateAxis();
         }
-        private function updateAxis():void
+        /*private function updateAxis():void
         {
             // Den angezeigten Zeitraum berechnen und entscheiden welche Zeiteinteilung benutzt wird
             var span:Number = Dates.timeSpan(start, end);
@@ -323,5 +352,6 @@ package conscape.components
                 x += spacing;
             }
         }
+        */
     }
 }
