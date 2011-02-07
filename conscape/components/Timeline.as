@@ -70,8 +70,6 @@ package conscape.components
         
         public function Timeline (data:Array, width:Number=200, height:Number=100, padding:Number=15):void
         {
-            debugger = new MonsterDebugger(this);
-            
             this.data = data;
             this.fields = [];
             this.padding = padding;

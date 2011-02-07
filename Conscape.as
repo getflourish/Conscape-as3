@@ -59,6 +59,7 @@ package
         private const BOTTOMPADDING:int = 300;
         private const TIMELINEPADDINGLEFT = 20;
         private const TIMELINEPADDINGTOP = 50;
+        private const TIMELINEHEIGHT = 200;
         private var auto:Boolean = false;
         private var cachedMarkers:Dictionary;
         private var con:Connection;
@@ -89,8 +90,6 @@ package
             fps.x = stage.stageWidth - 100;
             addChild(fps);
             
-            debugger = new MonsterDebugger(this);
-                
         	// Falls die Fenstergröße verändert wird (später unnötig aber mal gut zu sehen, wie es geht)
             stage.scaleMode = StageScaleMode.NO_SCALE;
             stage.align = StageAlign.TOP_LEFT;
@@ -105,13 +104,10 @@ package
             currentDataProvider = new CurrentDataProvider(timeline, con);
             loadVenues();
             
-            this.genreChartBar = new GenreChartBar(stage.stageHeight - 200, 100, currentDataProvider);
-            this.genreChartBar.x = stage.stageWidth - 200;
-            this.genreChartBar.y = 100;
+            this.genreChartBar = new GenreChartBar(stage.stageHeight - 100 - TIMELINEHEIGHT, 100, currentDataProvider);
+            this.genreChartBar.x = stage.stageWidth - 150;
+            this.genreChartBar.y = 50;
             stage.addChild(this.genreChartBar);
-            
-            var fpsCounter:FPSCounter = new FPSCounter();
-            stage.addChild(fpsCounter);
         }
         private function pause (event:KeyboardEvent):void
         {
@@ -131,7 +127,7 @@ package
             // Simple beige 30285
             map = new TweenMap(
                 stage.stageWidth, 
-                stage.stageHeight, 
+                stage.stageHeight - TIMELINEHEIGHT, 
                 true,
             	new CloudmadeProvider(10,18,"c1862c9125834b9fa203084d73eba088", 19816),
             	new Location(52.522, 13.405),
@@ -153,8 +149,7 @@ package
         }
         private function createTimeline():void
         {
-            timeline = new Timeline([], stage.stageWidth - TIMELINEPADDINGLEFT - PADDINGRIGHT, stage.stageHeight - map.height - 2 * TIMELINEPADDINGTOP);
-            
+            timeline = new Timeline([], stage.stageWidth, TIMELINEHEIGHT);
             
             var st:Statement = con.createStatement(); 
             var token:MySqlToken = st.executeQuery("SELECT COUNT(startdate) AS anzahl, DATE_FORMAT(startdate, '%Y-%m-%d') AS startdate FROM events WHERE YEAR(startdate) > 2005 GROUP BY YEAR(startdate), MONTH(startdate), DAY(startdate)");
@@ -252,8 +247,8 @@ package
         }
         private function onResize (event:Event = null):void 
         {
-            var w:Number = stage.stageWidth - PADDINGRIGHT;
-            var h:Number = stage.stageHeight - BOTTOMPADDING;
+            var w:Number = stage.stageWidth;
+            var h:Number = stage.stageHeight - TIMELINEHEIGHT;
 	    	
             // Größe und Position der Karte an die Fenstergröße anpassen
             map.x = map.y = 0;
