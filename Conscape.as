@@ -125,11 +125,13 @@ package
             // 999 night
             // 30059
             // Simple beige 30285
+            // 19816 grau
+            // 31445 conscape
             map = new TweenMap(
                 stage.stageWidth,
                 stage.stageHeight - TIMELINEHEIGHT,
                 true,
-            	new CloudmadeProvider(10,18,"c1862c9125834b9fa203084d73eba088", 19816),
+            	new CloudmadeProvider(10,18,"c1862c9125834b9fa203084d73eba088", 31445),
             	new Location(52.522, 13.405),
                 currentScale);
             map.x = map.y = 0;
