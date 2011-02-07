@@ -18,6 +18,7 @@ package conscape.components
         private var venue_event_data:Dictionary;
         private var maxAttendance:Number = 0;
         private var maxNumberEvents:Number = 0;
+        private var totalGenres:Object;
         private var timeline:Timeline;
         
         private var con:Connection;
@@ -40,6 +41,10 @@ package conscape.components
         public function getMaxNumberEvents():Number
         {
             return this.maxNumberEvents;
+        }
+        public function getTotalGenres():Object
+        {
+            return this.totalGenres;
         }
         private function dateChangeCallback(event:TimelineEvent):void
         {
@@ -72,18 +77,27 @@ package conscape.components
                 venue_event_data = new Dictionary();
                 maxAttendance = 0;
                 maxNumberEvents = 0;
+                totalGenres = Genre.getGenreObject();
                 for each(var item:* in event.resultSet.getRows()) {
+                    var genres:Object = Genre.getGenreObject();
+                    if (item["genre_list"]) {
+                        for each(var genreName:String in String(item["genre_list"]).split(",")) {
+                            genres[genreName]["count"] += 1;
+                            totalGenres[genreName]["count"] += 1;
+                        }
+                    }
                     venue_event_data[item["lastfm_venue_id"]] = {
                         "numberEvents": item["number_events"],
                         "totalAttendance": item["total_attendance"],
-                        "genres": String(item["genre_list"]).split(",")
+                        "genres": genres
                     };
                     if (item["number_events"] > maxNumberEvents) maxNumberEvents = item["number_events"];
                     if (item["total_attendance"] > maxAttendance) maxAttendance = item["total_attendance"];
                 }
                 dispatchEvent(new CurrentDataProviderEvent(CurrentDataProviderEvent.CHANGE, {
                     "maxNumberEvents": maxNumberEvents,
-                    "maxAttendance": maxAttendance
+                    "maxAttendance": maxAttendance,
+                    "totalGenres": totalGenres
                 }));
             });
         }
