@@ -4,30 +4,45 @@ package conscape.components
     import flash.display.MovieClip;
     import flash.display.Shape;
     import flash.events.MouseEvent;
+    import flash.text.AntiAliasType;
+    import flash.text.TextFieldAutoSize;
+    import flash.text.Font;
+    import flash.text.TextField;
+    import flash.text.TextFormat;
+    import flash.text.TextFormatAlign;
+    import flash.filters.BitmapFilter;
+    import flash.filters.BitmapFilterQuality;
+    import flash.filters.DropShadowFilter;
 
     import conscape.events.*;
 
+    import com.modestmaps.TweenMap;
     import com.modestmaps.geo.Location;
     
     import id.core.TouchMovieClip;
+    import gl.events.GestureEvent;
 
     public class Venue extends TouchMovieClip
     {
-           
-        private var display:PieChart;
+        private var display:*;
         private var venue_data:Object;
         private var venue_location:Location;
         private var eventData:Object;
         private var currentDataProvider:CurrentDataProvider;
+        private var label:TextField;
+        private var map:TweenMap;
 
-        public function Venue(_venue_data:Object, _currentDataProvider:CurrentDataProvider)
+        public function Venue(_venue_data:Object, _currentDataProvider:CurrentDataProvider, _map:TweenMap)
         {
         	stop();
         	 	
         	buttonMode = true;
         	mouseChildren = false;
         	tabEnabled = false;        	
-        	cacheAsBitmap = true;
+            // cacheAsBitmap = true;
+        	
+        	this.map = _map;
+        	map.addEventListener(GestureEvent.GESTURE_SCALE, zoomChangedCallback);
         	
         	this.currentDataProvider = _currentDataProvider;
         	this.currentDataProvider.addEventListener(CurrentDataProviderEvent.CHANGE, dataChangeCallback);
@@ -37,10 +52,37 @@ package conscape.components
                 this.venue_data["geo_long"]
             );
         	
-        	this.display = new PieChart([1]);
-            this.display.setRadius(1);
+        	this.display = new CircleDisplay(Genre.getGenreObject());
+            this.display.setArea(3);
             this.display.draw();
             this.addChild(this.display);
+            
+            Font.registerFont(HelveticaNeueBold);
+            var labelTextFormat:TextFormat = new TextFormat();
+            labelTextFormat.size = 15;
+            labelTextFormat.align = TextFormatAlign.CENTER;
+            labelTextFormat.bold = true;
+            labelTextFormat.color = 0xFFFFFF;
+            labelTextFormat.kerning = true;
+            labelTextFormat.font = "Helvetica Neue";
+            var dropShadow:DropShadowFilter = new DropShadowFilter();
+            dropShadow.color = 0x000000;
+            dropShadow.blurX = 3;
+            dropShadow.blurY = 3;
+            dropShadow.angle = 90;
+            dropShadow.alpha = 0.3;
+            dropShadow.distance = 2;
+            dropShadow.quality = BitmapFilterQuality.HIGH;
+            this.label = new TextField();
+            this.label.width = 10;
+            this.label.x = -5;
+            this.label.antiAliasType = flash.text.AntiAliasType.ADVANCED;
+            this.label.autoSize = TextFieldAutoSize.CENTER;
+            this.label.defaultTextFormat = labelTextFormat;
+        	this.label.text = this.getData("name");
+            this.label.filters = new Array(dropShadow);
+            this.label.visible = false;
+            this.addChild(this.label);
         	
         	addEventListener(MouseEvent.ROLL_OVER, bringToFront, true);
         }
@@ -60,19 +102,22 @@ package conscape.components
         public function dataChangeCallback(event:CurrentDataProviderEvent):void
         {
             this.eventData = this.currentDataProvider.getEventDataForVenue(this.getId());
+            var area:Number = 3;
             if (this.eventData) {
-                this.display.setRadius(0.25 * Math.sqrt(this.eventData["totalAttendance"]));
                 /*this.display.alpha = 0.05 * Math.sqrt(this.eventData["numberEvents"]);*/
-                var chart_data:Array = [];
-                for each(var genreName:String in Genre.ORDER) {
-                    chart_data.push(eventData["genres"][genreName]["count"]);
-                }
-                this.display.setData(chart_data);
+                area = Math.sqrt(this.eventData["totalAttendance"]) * 50;
+                if (area < 3) area = 3;
+                this.display.setData(this.eventData["genres"]);
             } else {
-                this.display.setRadius(1);
-                this.display.setData([1]);
+                this.display.setData(Genre.getGenreObject());
             }
+            this.display.setArea(area);
             this.display.draw();
+            this.label.y = this.display.getRadius() - 3;
+        }
+        public function zoomChangedCallback(event:GestureEvent):void
+        {
+            this.label.visible = this.map.getZoom() > 14;
         }
         protected function bringToFront(e:MouseEvent):void
         {
