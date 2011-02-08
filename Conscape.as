@@ -58,8 +58,8 @@ package
         private const PADDINGRIGHT:int = 100;
         private const BOTTOMPADDING:int = 300;
         private const TIMELINEPADDINGLEFT = 20;
-        private const TIMELINEPADDINGTOP = 50;
-        private const TIMELINEHEIGHT = 200;
+        private const TIMELINEPADDINGTOP = 10;
+        private const TIMELINEHEIGHT = 150;
         private var auto:Boolean = false;
         private var cachedMarkers:Dictionary;
         private var con:Connection;
@@ -85,7 +85,7 @@ package
             this.licenseKey = "18AF7FE030741A38BE7FFBFDAC9590A4E1B66841B6";
             this.settingsPath = "application.xml";
 			super();
-
+            
             var fps:FPSCounter = new FPSCounter();
             fps.x = stage.stageWidth - 100;
             addChild(fps);
@@ -129,12 +129,13 @@ package
                 stage.stageWidth,
                 stage.stageHeight - TIMELINEHEIGHT,
                 true,
-            	new CloudmadeProvider(10,18,"c1862c9125834b9fa203084d73eba088", 19816),
+            	new CloudmadeProvider(10,18,"c1862c9125834b9fa203084d73eba088", 31429),
             	new Location(52.522, 13.405),
                 currentScale);
             map.x = map.y = 0;
             addChild(map);
 
+            map.addEventListener(TouchEvent.TOUCH_TAP, onMapTap);
             map.addEventListener(MarkerEvent.MARKER_TAP, onMarkerTap);
             map.addEventListener(GestureEvent.GESTURE_SCALE, onLocationZoom);
             map.addEventListener(TouchEvent.TOUCH_MOVE, onMapMove);
@@ -162,8 +163,8 @@ package
 
                     timeline.setTitle("Konzerte vom " + MathsUtil.getBeautifulDate(event.data.startdate) + "—" + MathsUtil.getBeautifulDate(event.data.enddate));
                 });
+                timeline.graphColor = 0xffffff;
                 timeline.setAxis("startdate", "anzahl");
-                timeline.graphColor = 0x000000;
                 timeline.x = TIMELINEPADDINGLEFT;
                 timeline.y = map.height + TIMELINEPADDINGTOP;
                 addChild(timeline);
@@ -253,6 +254,10 @@ package
             // Größe und Position der Karte an die Fenstergröße anpassen
             map.x = map.y = 0;
             map.setSize(w, h);
+        }
+        private function onMapTap (event:TouchEvent):void
+        {
+            if (event.target is TweenMap) tooltip.visible = false;
         }
         private function onMarkerTap (event:MarkerEvent):void
         {

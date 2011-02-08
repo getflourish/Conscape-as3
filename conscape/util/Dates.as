@@ -35,7 +35,20 @@ package conscape.util
 		 */
 		public function Dates() {
 			throw new Error("This is an abstract class.");
-		}	
+		}
+		
+		// -- Conversion ------------------------------------------------------
+		
+		/**
+		 * Given a date, returns a date instance of the same time in Univeral
+		 * Coordinated Time (UTC).
+		 * @param d the date to convert
+		 */
+		public static function toUTC(d:Date) : Date {
+			return new Date(d.fullYearUTC, d.monthUTC, d.dateUTC, d.hoursUTC,
+							d.minutesUTC, d.secondsUTC, d.millisecondsUTC);
+		}
+		
 		// -- Date Arithmetic -------------------------------------------------
 		
 		/**
@@ -105,7 +118,57 @@ package conscape.util
 		 */
 		public static function addSeconds(d:Date, x:int) : Date {
 			return new Date(d.time + 1000 * x);
-		}	
+		}
+		
+		// -- Time Spans ------------------------------------------------------
+				
+		/**
+		 * Rounds a date according to a particular time span. Date values are
+		 * rounded to the minimum date/time value of the time span (the first
+		 * day in a year, month, or week, or the beginning of a day, hours,
+		 * minute, second, etc).
+		 * @param t the date to round
+		 * @param span the time span to which the date should be rounded, legal
+		 *  values are YEARS, MONTHS, WEEKS, DAYS, HOURS, MINUTES, SECONDS, or
+		 *  MILLISECONDS
+		 * @param roundUp if true, the date will be rounded up to nearest value,
+		 * otherwise it will be rounded down (the default)
+		 * @return a new Date representing the rounded date and time.
+		 */
+		public static function roundTime(t:Date, span:int, roundUp:Boolean=false) : Date
+		{
+			var d:Date = t;
+			if (span > YEARS) {
+				d = new Date(t.fullYear, 0);
+				if (roundUp) d = addYears(d, 1);
+			} else if (span == MONTHS) {
+				d = new Date(t.fullYear, t.month);
+				if (roundUp) d = addMonths(d, 1);				
+			} else if (span == DAYS) {
+				d = new Date(t.fullYear, t.month, t.date);
+				if (roundUp) d = addDays(d, 1);
+			} else if (span == HOURS) {
+				d = new Date(t.fullYear, t.month, t.date, t.hours);
+				if (roundUp) d = addHours(d, 1);
+			} else if (span == MINUTES) {
+				d = new Date(t.fullYear, t.month, t.date, t.hours, t.minutes);
+				if (roundUp) d = addMinutes(d, 1);
+			} else if (span == SECONDS) {
+				d = new Date(t.fullYear, t.month, t.date, t.hours, t.minutes, t.seconds);
+				if (roundUp) d = addSeconds(d, 1);
+			} else if (span == MILLISECONDS) {
+				d = new Date(d.time + (roundUp ? 1 : -1));
+			} else if (span == WEEKS) {
+				d = new Date(t.fullYear, t.month, t.date);
+				if (roundUp) {
+					d = addDays(d, 7 - d.day);
+				} else {
+					d = addDays(d, -d.day);
+				}
+			}
+			return d;
+		}
+		
 		/**
 		 * Given two dates, returns a measure of the time span between them.
 		 * @param t the first date to compare
@@ -120,7 +183,7 @@ package conscape.util
 			var span:Number = s.time - t.time;
 			var days:Number = span / MS_DAY;
 
-            if (days >= 365*2) 			return YEARS; // return (1 + s.fullYear-t.fullYear);
+            if (days >= 365*2) 			return (1 + s.fullYear-t.fullYear);
             else if (days >= 60)   		return MONTHS;
             else if (span/MS_DAY > 1)	return DAYS;
             else if (span/MS_HOUR > 1)	return HOURS;
@@ -128,5 +191,36 @@ package conscape.util
             else if (span/1000.0 > 1)	return SECONDS;
             else						return MILLISECONDS;
 		}
+		
+		/**
+		 * Returns the number of milliseconds needed to step one time step
+		 * forward according to the given time span measure.
+		 * @param span the time span for which to return a time step value.
+		 *  Legal values are any positive numbers (representing years) or DAYS,
+		 *  HOURS, MINUTES, SECONDS, and MILLISECONDS. Note that the MONTHS
+		 *  time span is not supported and will result in a zero return value.
+		 * @return the number of milliseconds needed to more one time step
+		 *  ahead according to the input time span. For years (positive
+		 *  integer input), this step is the nearest power of ten less than the
+		 *  input value.
+		 */
+		public static function timeStep(span:int):Number {
+			if (span > YEARS) {
+				return Math.pow(10, Math.floor(FlareMaths.log(Math.max(1,span-1),10)));
+			} else if (span == MONTHS) {
+				return 0;
+			} else if (span == DAYS) {
+				return MS_DAY;
+			} else if (span == HOURS) {
+				return MS_HOUR;
+			} else if (span == MINUTES) {
+				return MS_MIN;
+			} else if (span == SECONDS) {
+				return 1000;
+			} else {
+				return 1;
+			}
+		}
+		
 	} // end of class DateUtil
 }
