@@ -126,7 +126,7 @@ package
                 stage.stageWidth, 
                 stage.stageHeight, 
                 true,
-            	new CloudmadeProvider(10,18,"c1862c9125834b9fa203084d73eba088", 999),
+            	new CloudmadeProvider(10,18,"c1862c9125834b9fa203084d73eba088", 31429),
             	new Location(52.522, 13.405),
                 currentScale);
             map.x = map.y = 0;
