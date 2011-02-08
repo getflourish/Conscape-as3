@@ -35,7 +35,7 @@ package conscape.components
         private var boundsRectangle:Shape;
         private var data:Object;
         private var dateLabelHeight:Number = 20;
-        private var dateLabelWidth:Number = 50;
+        private var dateLabelWidth:Number = 70;
         private var dateLabelPaddingY:Number = 5;
         private var dateAxis:Sprite;
         private var dictionary:Dictionary;
@@ -64,7 +64,7 @@ package conscape.components
         private var xAxis:String;
         private var yAxis:String;
          
-        public var graphColor:uint = 0x000000;
+        public var graphColor:uint = 0xffffff;
          
         public function Timeline (data:Array, width:Number=200, height:Number=100, padding:Number=15):void
         {
@@ -96,6 +96,7 @@ package conscape.components
             this.scrollView.y = 0;
             this.scrollView.enableScrolling(ScrollView.HORIZONTAL);
             this.scrollView.showsHorizontalScrollIndicator = true;
+            this.scrollView.indicatorColor = 0xffffff;
             this.scrollView.addEventListener(GestureEvent.GESTURE_SCALE, onPinch);
             this.scrollView.addEventListener(TouchEvent.TOUCH_UP, onTouchUp);
             this.scrollView.addEventListener(TouchEvent.TOUCH_DOWN, onTouchDown);
@@ -117,7 +118,7 @@ package conscape.components
             this.addChild(title);
             this.title.width = graphBounds.width;
             this.title.x = 0;
-            this.title.y = this.bounds.height + padding / 2 - Number(titleFormat.size);
+            this.title.y = this.bounds.height + padding /  - Number(titleFormat.size);
             this.title.selectable = false;
             this.title.text = "";
              
@@ -200,7 +201,7 @@ package conscape.components
         {
             var d:Date = date;
             var b:Rectangle = scrollView.getBoundingRectangle();
-            x = MathsUtil.map(x, 0, graph.width, minDate.getTime(), maxDate.getTime());
+            var x:Number = MathsUtil.map(date.time, minDate.time, maxDate.time, 0, scrollView.getBoundingRectangle().width);
             return x;
         }
         public function getTimeScale ():Number
@@ -210,6 +211,7 @@ package conscape.components
         private function onScroll (event:ScrollEvent):void
         {
             fireRangeChange();
+            updateAxis();
         }
         private function onPinch (event:GestureEvent):void
         {
@@ -219,14 +221,13 @@ package conscape.components
             } else {
                 timeScale = 1;
             }  
-            trace(timeScale);
             pinchCenterX = (scrollView.fingers[0].x + scrollView.fingers[1].x) / 2;
             // Verhältnis vom Mittelpunkt der Finger zur Breite der Scrollview
             var ratio:Number = Math.abs(scrollView.content.x - pinchCenterX) / graph.width;
             var oldW:Number = graph.width;
+            updateAxis();
             update();
             fireRangeChange();
-            updateAxis();
              
             var newW:Number = graph.width;
             scrollView.content.x += (oldW - newW) * ratio;
@@ -307,7 +308,7 @@ package conscape.components
             }
             deltaX = Math.abs(scrollView.content.x);
             var d:Date = getDateForX(deltaX);
-            updateAxis();
+            //updateAxis();
         }
         private function updateAxis():void
         {
@@ -319,33 +320,38 @@ package conscape.components
             }
             switch (span) {
                 case 0:
+                    var min:Date = getDateForX(Math.abs(scrollView.content.x));
+                    var max:Date = getDateForX(Math.abs(scrollView.content.x) + scrollView.getBoundingRectangle().width);
+                    while (min.fullYear <= max.fullYear) {
+                        var label:TextField = new TextField();  
+                        dateAxis.addChild(label);
+                        label.width = dateLabelWidth;
+                        label.x = getXForDate(min) * timeScale;
+                        label.y = dateLabelPaddingY;
+                        label.text = "" + String(min.fullYear);
+                        label.selectable = false;
+                        label.setTextFormat(axisFormat);
+                        min = Dates.addYears(min, 1);
+                    }
                     break;
                 // Monate
                 case -1:
-                    trace("monate");
                     var min:Date = getDateForX(Math.abs(scrollView.content.x));
-                    var minMonth:Date = Dates.roundTime(min, -1);
-                    var max:Date = getDateForX(Math.abs(scrollView.getBoundingRectangle().width));
-                    var maxMonth:Date = Dates.roundTime(max, -1);
-//                    trace(month);
+                    var minD:Date = Dates.roundTime(min, -1);
+                    var max:Date = getDateForX(Math.abs(scrollView.content.x) + scrollView.getBoundingRectangle().width);
+                    var maxD:Date = Dates.roundTime(max, -1);
+                    while (minD <= maxD) {
+                        var label:TextField = new TextField();  
+                        dateAxis.addChild(label);
+                        label.width = dateLabelWidth;
+                        label.x = getXForDate(minD) * timeScale;
+                        label.y = dateLabelPaddingY;
+                        label.text = "" + Dates.monthName(minD.month);
+                        label.selectable = false;
+                        label.setTextFormat(axisFormat);
+                        minD = Dates.addMonths(minD, 1);
+                    }
                     break;
-            }
-            // Schauen wieviele Jahre es im Zeitraum gibt und in gleichen Abständen Jahreszahlen an die Achse schreiben
-            var numDates:Number = maxDate.fullYear - minDate.fullYear;
-            var spacing:Number = scrollView.content.width / numDates;
-            var x:Number = 0;
-            for (var i:Number = 0; i < numDates; i++) {
-                var dateLabel:TextField = new TextField();  
-                dateAxis.addChild(dateLabel);
-                dateLabel.width = dateLabelWidth;
-                dateLabel.x = x;
-                dateLabel.y = dateLabelPaddingY;
-                dateLabel.text = "’" + String(getDateForX(x).fullYear).slice(2);
-                dateLabel.selectable = false;
- 
-                dateLabel.setTextFormat(axisFormat);
-                 
-                x += spacing;
             }
         }
     }

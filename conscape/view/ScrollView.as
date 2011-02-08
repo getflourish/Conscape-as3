@@ -60,6 +60,7 @@ package conscape.view
 		public var content:TouchSprite;
 		public var directionalLock:String = FREE;
         public var fingers:Array;
+        public var indicatorColor:uint = 0x000000;
 		public var scalingEnabled:Boolean = false;
 		public var scrollEnabled:Boolean = true;
 		public var scrollsToTop:Boolean = true;
@@ -456,7 +457,7 @@ package conscape.view
 					sy = 0;
 				}
 				verticalScrollIndicator.graphics.clear();
-				verticalScrollIndicator.graphics.beginFill(0x000000, 1);
+				verticalScrollIndicator.graphics.beginFill(indicatorColor, 1);
 				verticalScrollIndicator.graphics.drawRoundRect(bounds.width - scrollIndicatorThickness, 0, scrollIndicatorThickness, h, 10);
 				verticalScrollIndicator.graphics.endFill();
 			
@@ -477,7 +478,7 @@ package conscape.view
 					sx = 0;
 				}
 				horizontalScrollIndicator.graphics.clear();
-				horizontalScrollIndicator.graphics.beginFill(0x000000, 1);
+				horizontalScrollIndicator.graphics.beginFill(indicatorColor, 1);
 				horizontalScrollIndicator.graphics.drawRoundRect(0, bounds.height - scrollIndicatorThickness, w, scrollIndicatorThickness, 10);
 				horizontalScrollIndicator.graphics.endFill();
 				

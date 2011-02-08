@@ -135,6 +135,49 @@ package conscape.util
 		 * otherwise it will be rounded down (the default)
 		 * @return a new Date representing the rounded date and time.
 		 */
+		public static function monthName(m:Number):String
+		{
+		    var s:String = "";
+		    switch (m) {
+		        case 0:
+		            s = "Januar";
+		            break;
+		        case 1:
+    		        s = "Februar";
+    		        break;
+    		    case 2:
+    		        s = "März";
+    		        break;
+    		    case 3:
+    		        s = "April";
+    		        break;
+    		    case 4:
+    		        s = "Mai";
+    		        break;		            
+    		    case 5:
+    		        s = "Juni";
+    		        break;
+    		    case 6:
+    		        s = "Juli";
+    		        break;
+    		    case 7:
+    		        s = "August";
+    		        break;
+    		    case 8:
+    		        s = "September";
+    		        break;
+    		    case 9:
+    		        s = "Oktober";
+    		        break;
+    		    case 10:
+    		        s = "November";
+    		        break;
+    		    case 11:
+    		        s = "Dezember";
+    		        break;
+		    }
+		    return s;
+		}
 		public static function roundTime(t:Date, span:int, roundUp:Boolean=false) : Date
 		{
 			var d:Date = t;
@@ -183,7 +226,7 @@ package conscape.util
 			var span:Number = s.time - t.time;
 			var days:Number = span / MS_DAY;
 
-            if (days >= 365*2) 			return (1 + s.fullYear-t.fullYear);
+            if (days >= 365*2) 			return YEARS;
             else if (days >= 60)   		return MONTHS;
             else if (span/MS_DAY > 1)	return DAYS;
             else if (span/MS_HOUR > 1)	return HOURS;
