@@ -56,6 +56,7 @@ package conscape.components
         {
             var startdate:String = MathsUtil.convertASDateToMySQLTimestamp(event.data.startdate);
             var enddate:String = MathsUtil.convertASDateToMySQLTimestamp(event.data.enddate);
+            var numberOfDays:Number = event.data.numberOfDays;
             if (enddate) {
                 var query:String = [
                     "SELECT lastfm_venue_id, COUNT(*) as number_events, SUM(attendance) as total_attendance, GROUP_CONCAT(genres SEPARATOR ',') as genre_list",
@@ -106,7 +107,8 @@ package conscape.components
                     "maxNumberEvents": maxNumberEvents,
                     "maxAttendance": maxAttendance,
                     "totalGenres": totalGenres,
-                    "totalGenreCount": totalGenreCount
+                    "totalGenreCount": totalGenreCount,
+                    "numberOfDays": numberOfDays
                 }));
             });
         }

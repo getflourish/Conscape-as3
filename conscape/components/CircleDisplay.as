@@ -24,9 +24,9 @@ package conscape.components
         private function prepareDrawing():void
         {
             this.prominentGenre = {"count": -1};
-            for each(var genre:Object in this.genreData) {
-                if (genre["count"] > this.prominentGenre["count"]) {
-                    this.prominentGenre = genre;
+            for each(var genreName:String in Genre.ORDER) {
+                if (this.genreData[genreName]["count"] > this.prominentGenre["count"]) {
+                    this.prominentGenre = this.genreData[genreName];
                 }
             }
         }

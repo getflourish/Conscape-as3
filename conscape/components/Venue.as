@@ -15,6 +15,7 @@ package conscape.components
     import flash.filters.DropShadowFilter;
 
     import conscape.events.*;
+    import conscape.util.MathsUtil;
 
     import com.modestmaps.TweenMap;
     import com.modestmaps.geo.Location;
@@ -31,6 +32,7 @@ package conscape.components
         private var currentDataProvider:CurrentDataProvider;
         private var label:TextField;
         private var map:TweenMap;
+        private var zoomToAlpha:Array = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.75, 1, 1, 1];
 
         public function Venue(_venue_data:Object, _currentDataProvider:CurrentDataProvider, _map:TweenMap)
         {
@@ -104,7 +106,7 @@ package conscape.components
             this.eventData = this.currentDataProvider.getEventDataForVenue(this.getId());
             var area:Number = 3;
             if (this.eventData) {
-                /*this.display.alpha = 0.05 * Math.sqrt(this.eventData["numberEvents"]);*/
+                this.display.alpha = MathsUtil.map(this.map.getZoom(), 12, 16, 0.3, 1.0);
                 area = Math.sqrt(this.eventData["totalAttendance"]) * 50;
                 if (area < 3) area = 3;
                 this.display.setData(this.eventData["genres"]);
@@ -118,6 +120,7 @@ package conscape.components
         public function zoomChangedCallback(event:GestureEvent):void
         {
             this.label.visible = this.map.getZoom() > 14;
+            this.display.alpha = MathsUtil.map(this.map.getZoom(), 12, 16, 0.3, 1.0);
         }
         protected function bringToFront(e:MouseEvent):void
         {
