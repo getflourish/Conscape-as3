@@ -15,6 +15,7 @@ package conscape.components
     import flash.filters.DropShadowFilter;
 
     import conscape.events.*;
+    import conscape.util.MathsUtil;
 
     import com.modestmaps.TweenMap;
     import com.modestmaps.geo.Location;
@@ -24,14 +25,14 @@ package conscape.components
 
     public class Venue extends TouchMovieClip
     {
-           
-        private var display:PieChart;
+        private var display:*;
         private var venue_data:Object;
         private var venue_location:Location;
         private var eventData:Object;
         private var currentDataProvider:CurrentDataProvider;
         private var label:TextField;
         private var map:TweenMap;
+        private var zoomToAlpha:Array = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.75, 1, 1, 1];
 
         public function Venue(_venue_data:Object, _currentDataProvider:CurrentDataProvider, _map:TweenMap)
         {
@@ -53,8 +54,8 @@ package conscape.components
                 this.venue_data["geo_long"]
             );
         	
-        	this.display = new PieChart([1]);
-            this.display.setRadius(1);
+        	this.display = new CircleDisplay(Genre.getGenreObject());
+            this.display.setArea(3);
             this.display.draw();
             this.addChild(this.display);
             
@@ -103,28 +104,23 @@ package conscape.components
         public function dataChangeCallback(event:CurrentDataProviderEvent):void
         {
             this.eventData = this.currentDataProvider.getEventDataForVenue(this.getId());
-            var radius:Number = 3;
+            var area:Number = 3;
             if (this.eventData) {
-                /*this.display.alpha = 0.05 * Math.sqrt(this.eventData["numberEvents"]);*/
-                if (0.25 * Math.sqrt(this.eventData["totalAttendance"]) > radius) {
-                    radius = 0.25 * Math.sqrt(this.eventData["totalAttendance"]);
-                }
-                var chart_data:Array = [];
-                for each(var genreName:String in Genre.ORDER) {
-                    chart_data.push(eventData["genres"][genreName]["count"]);
-                }
-                this.display.setData(chart_data);
+                this.display.alpha = MathsUtil.map(this.map.getZoom(), 12, 16, 0.3, 1.0);
+                area = Math.sqrt(this.eventData["totalAttendance"]) * 50;
+                if (area < 3) area = 3;
+                this.display.setData(this.eventData["genres"]);
             } else {
-                this.display.setData([1]);
+                this.display.setData(Genre.getGenreObject());
             }
-
-            this.display.setRadius(radius);
+            this.display.setArea(area);
             this.display.draw();
-            this.label.y = radius - 3;
+            this.label.y = this.display.getRadius() - 3;
         }
         public function zoomChangedCallback(event:GestureEvent):void
         {
             this.label.visible = this.map.getZoom() > 14;
+            this.display.alpha = MathsUtil.map(this.map.getZoom(), 12, 16, 0.3, 1.0);
         }
         protected function bringToFront(e:MouseEvent):void
         {

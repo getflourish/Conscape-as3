@@ -5,52 +5,37 @@ package conscape.components
     public class PieChart extends Shape
     {
 		private static var CONVERT_TO_RADIANS:Number = Math.PI / 180;
-		private var chartData:Array;
+		private var genreData:Object;
 		private var percentages:Array;
-		private var shapes:Array;
 		private var colours:Array;
 		
 		private var radius:Number = 1;
 		
-        public function PieChart(_chartData:Array)
+        public function PieChart(_genreData:Object)
         {
-            this.setData(_chartData);
+            this.setData(_genreData);
             this.colours = Genre.COLOURS;
-            
         }
-        public function setData(_chartData:Array):void
+        public function setData(_genreData:Object):void
         {
-            this.chartData = _chartData;
+            this.genreData = _genreData;
             this.calculatePercentages();
         }
-        public function getData():Array
+        public function getData():Object
         {
-            return this.chartData;
-        }
-        public function addData(_chartData):void
-        {
-            if (_chartData is Array) {
-                this.chartData = this.chartData.concat(_chartData);
-            } else {
-                this.chartData.push(_chartData);
-            }
-            this.calculatePercentages();
-        }
-        public function setColours(_colours):void
-        {
-            this.colours = _colours;
+            return this.genreData;
         }
         private function calculatePercentages():void
         {
-            var total:Number = 0;
-            for each(var amount:Number in this.chartData) {
-                total += amount;                                
+            var total:Number = 0;            
+            for each(var genreName:String in Genre.ORDER) {
+                total += genreData[genreName]["count"];   
             }
             this.percentages = [];
             var ratio = 100/total;
-            for each(var amount2:Number in this.chartData) {
-                if (amount2 > 0) {
-                    this.percentages.push(amount2*ratio/100);
+            for each(var genreName:String in Genre.ORDER) {
+                if (genreData[genreName]["count"] > 0) {
+                    this.percentages.push(genreData[genreName]["count"]*ratio/100);
                 } else {
                     this.percentages.push(0);
                 }
@@ -63,6 +48,14 @@ package conscape.components
         public function getRadius():Number
         {
             return this.radius;
+        }
+        public function setArea(_area:Number):void
+        {
+            this.radius = Math.sqrt(_area/Math.PI);
+        }
+        public function getArea():Number
+        {
+            return Math.pow(this.radius, 2) * Math.PI;
         }
         public function draw():void
         {

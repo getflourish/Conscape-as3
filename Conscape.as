@@ -104,9 +104,9 @@ package
             currentDataProvider = new CurrentDataProvider(timeline, con);
             loadVenues();
 
-            this.genreChartBar = new GenreChartBar(stage.stageHeight - 100 - TIMELINEHEIGHT, 100, currentDataProvider);
+            this.genreChartBar = new GenreChartBar(stage.stageHeight - 190 - TIMELINEHEIGHT, 100, currentDataProvider);
             this.genreChartBar.x = stage.stageWidth - 150;
-            this.genreChartBar.y = 50;
+            this.genreChartBar.y = 140;
             stage.addChild(this.genreChartBar);
         }
         private function pause (event:KeyboardEvent):void
@@ -125,6 +125,8 @@ package
             // 999 night
             // 30059
             // Simple beige 30285
+            // 19816 grau
+            // 31429 conscape
             map = new TweenMap(
                 stage.stageWidth,
                 stage.stageHeight - TIMELINEHEIGHT,
