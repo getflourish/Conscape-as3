@@ -50,7 +50,7 @@ package conscape.components
         {
             this.graphics.clear();
             this.graphics.beginFill(this.prominentGenre["colour"], 100);
-            this.graphics.drawCircle(this.radius*-1, this.radius*-1, this.radius);
+            this.graphics.drawCircle(0, 0, this.radius);
             this.graphics.endFill();
         }
     }
