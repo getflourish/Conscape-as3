@@ -24,8 +24,7 @@ package conscape.components
 
     public class Venue extends TouchMovieClip
     {
-           
-        private var display:PieChart;
+        private var display:*;
         private var venue_data:Object;
         private var venue_location:Location;
         private var eventData:Object;
@@ -53,8 +52,8 @@ package conscape.components
                 this.venue_data["geo_long"]
             );
         	
-        	this.display = new PieChart([1]);
-            this.display.setRadius(1);
+        	this.display = new CircleDisplay(Genre.getGenreObject());
+            this.display.setArea(3);
             this.display.draw();
             this.addChild(this.display);
             
@@ -103,24 +102,18 @@ package conscape.components
         public function dataChangeCallback(event:CurrentDataProviderEvent):void
         {
             this.eventData = this.currentDataProvider.getEventDataForVenue(this.getId());
-            var radius:Number = 3;
+            var area:Number = 3;
             if (this.eventData) {
                 /*this.display.alpha = 0.05 * Math.sqrt(this.eventData["numberEvents"]);*/
-                if (0.25 * Math.sqrt(this.eventData["totalAttendance"]) > radius) {
-                    radius = 0.25 * Math.sqrt(this.eventData["totalAttendance"]);
-                }
-                var chart_data:Array = [];
-                for each(var genreName:String in Genre.ORDER) {
-                    chart_data.push(eventData["genres"][genreName]["count"]);
-                }
-                this.display.setData(chart_data);
+                area = Math.sqrt(this.eventData["totalAttendance"]) * 50;
+                if (area < 3) area = 3;
+                this.display.setData(this.eventData["genres"]);
             } else {
-                this.display.setData([1]);
+                this.display.setData(Genre.getGenreObject());
             }
-
-            this.display.setRadius(radius);
+            this.display.setArea(area);
             this.display.draw();
-            this.label.y = radius - 3;
+            this.label.y = this.display.getRadius() - 3;
         }
         public function zoomChangedCallback(event:GestureEvent):void
         {
