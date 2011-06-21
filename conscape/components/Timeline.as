@@ -60,6 +60,7 @@ package conscape.components
         private var timeScale:Number = 1;
         private var title:TextField;
         private var titleFormat:TextFormat;
+        private var today:Date;
         private var scrollView:ScrollView;
         private var xAxis:String;
         private var yAxis:String;
@@ -69,7 +70,8 @@ package conscape.components
         public function Timeline (data:Array, width:Number=200, height:Number=100, padding:Number=15):void
         {
             debugger = new MonsterDebugger(this);
-             
+            
+            this.today = new Date(2011,1,8); 
             this.data = data;
             this.fields = [];
             this.padding = padding;
@@ -79,6 +81,7 @@ package conscape.components
             this.initHeight = height;
             this.initFormats();
             init();
+            
         }
         public function setData(_data:Array):void
         {
@@ -293,6 +296,8 @@ package conscape.components
             var x:Number = 0;
             var y:Number = 0;
             var n:Number = 0;
+            
+            var todayx:Number = getXForDate(today);
              
             graph.graphics.clear();
             graph.graphics.lineStyle(timeScale / 2, graphColor, 1, false, LineScaleMode.NONE, CapsStyle.NONE, JointStyle.BEVEL);
@@ -301,6 +306,13 @@ package conscape.components
             var deltaX:Number = 100;
             var bottom:Number = bounds.height - dateLabelHeight;
             for each (var o:Object in mapping) {
+                trace(todayx);
+                trace(o.x);
+                if (todayx == o.x) {
+                    graph.graphics.lineStyle(timeScale / 2, 0xff0000, 1, false, LineScaleMode.NONE, CapsStyle.NONE, JointStyle.BEVEL);
+                } else {
+                    graph.graphics.lineStyle(timeScale / 2, graphColor, 1, false, LineScaleMode.NONE, CapsStyle.NONE, JointStyle.BEVEL);
+                }
                 x = o.x * timeScale;
                 y = o.y;
                 graph.graphics.moveTo(x, bottom);

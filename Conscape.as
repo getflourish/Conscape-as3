@@ -25,6 +25,7 @@ package
     import flash.display.StageAlign;
     import flash.display.StageScaleMode;
     import flash.display.Sprite;
+    import flash.display.Shape;
     import flash.events.Event;
     import flash.events.KeyboardEvent;
     import flash.events.TimerEvent;
@@ -58,7 +59,7 @@ package
         private const PADDINGRIGHT:int = 100;
         private const BOTTOMPADDING:int = 300;
         private const TIMELINEPADDINGLEFT = 20;
-        private const TIMELINEPADDINGTOP = 10;
+        private const TIMELINEPADDINGTOP = 50;
         private const TIMELINEHEIGHT = 150;
         private var auto:Boolean = false;
         private var cachedMarkers:Dictionary;
@@ -79,6 +80,9 @@ package
         private var currentDataProvider:CurrentDataProvider;
 
         private var genreChartBar:GenreChartBar;
+        
+        private var fader:Shape;
+        private var black:Boolean = true;
 
         public function Conscape()
         {
@@ -104,10 +108,18 @@ package
             currentDataProvider = new CurrentDataProvider(timeline, con);
             loadVenues();
 
-            this.genreChartBar = new GenreChartBar(stage.stageHeight - 100 - TIMELINEHEIGHT, 100, currentDataProvider);
+            this.genreChartBar = new GenreChartBar(stage.stageHeight - 100 - TIMELINEHEIGHT, 75, currentDataProvider);
             this.genreChartBar.x = stage.stageWidth - 150;
             this.genreChartBar.y = 50;
             stage.addChild(this.genreChartBar);
+            
+            // fader
+            this.fader = new Shape();
+            this.fader.graphics.beginFill(0x000000, 100);
+            this.fader.graphics.drawRect(0, 0, stage.stageWidth, stage.stageHeight);
+            this.fader.graphics.endFill();
+            
+            stage.addChild(fader);
         }
         private function pause (event:KeyboardEvent):void
         {
@@ -147,6 +159,8 @@ package
             // Tooltip
             tooltip = new Tooltip();
             addChild(tooltip);
+            
+            stage.addEventListener(KeyboardEvent.KEY_DOWN, onKey);
 
             onResize();
         }
@@ -323,6 +337,16 @@ package
                 currentScale = z;
                 zooming = false;
                 map.removeEventListener(TouchEvent.TOUCH_UP, onStopZoom);
+            }
+        }
+        private function onKey(event:KeyboardEvent) {
+            trace("foo");
+            if (black) {
+                TweenLite.to(fader, 1, {alpha: 0});   
+                black = false;
+            } else {
+                TweenLite.to(fader, 1, {alpha: 1});
+                black = true;
             }
         }
     }

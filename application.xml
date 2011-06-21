@@ -83,7 +83,7 @@
 		
 		<Clustering>1</Clustering> <!-- 0 | 1 | 2 -->
 		<Degradation>auto</Degradation> <!-- always | auto | never -->
-		<Debug>true</Debug>
+		<Debug>false</Debug>
 		
 		<LicenseKey></LicenseKey>
 	</TouchCore>

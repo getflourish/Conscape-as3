@@ -30,6 +30,7 @@ package conscape.components
             
             this.bar = new Shape();
             this.addChild(bar);
+            this.bar.alpha = 0.7;
             
             Font.registerFont(HelveticaNeueBold);
             this.chartLabels = new Dictionary();
@@ -51,7 +52,7 @@ package conscape.components
             for (var genre:Object in Genre.getGenreObject()) {
                 var chartLabel:TextField = new TextField();
                 chartLabel.antiAliasType = flash.text.AntiAliasType.ADVANCED;
-                chartLabel.width = 100;
+                chartLabel.width = this.chartWidth;
                 chartLabel.defaultTextFormat = chartLabelTextFormat;
             	chartLabel.text = Genre.getGenreObject()[genre]["name"];
                 chartLabel.filters = new Array(dropShadow);
