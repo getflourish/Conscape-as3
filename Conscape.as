@@ -157,6 +157,7 @@ package
             map.addEventListener(TouchEvent.TOUCH_MOVE, onMapMove);
 
             map.blobContainerEnabled = true;
+            map.markerClip.markerSortFunction = null;
 
             // Tooltip
             tooltip = new Tooltip();
@@ -287,6 +288,7 @@ package
                 pt = map.locationPoint(event.location);
                 tooltip.venue_name.text = venue.getData("name");
                 tooltip.address.text = venue.getData("street");
+                tooltip.address.text = TextUtil.truncateTextField(tooltip.address);
                 tooltip.artists.text = venue.getEventData("numberEvents") +" Events, " + venue.getEventData("totalAttendance") + " Besucher";
                 
                 var newColorTransform:ColorTransform = tooltip.venueIcon.transform.colorTransform;
