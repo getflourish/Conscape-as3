@@ -48,6 +48,7 @@ package conscape.components
         	
         	this.currentDataProvider = _currentDataProvider;
         	this.currentDataProvider.addEventListener(CurrentDataProviderEvent.CHANGE, dataChangeCallback);
+        	this.currentDataProvider.addEventListener(CurrentDataProviderEvent.GENRE_FILTER_CHANGE, filterChangeCallback);
         	this.venue_data = _venue_data;
         	this.venue_location = new Location(
                 this.venue_data["geo_lat"],
@@ -88,6 +89,18 @@ package conscape.components
         	
         	addEventListener(MouseEvent.ROLL_OVER, bringToFront, true);
         }
+        private function show():void
+        {
+            this.visible = true;
+        }
+        private function hide():void
+        {
+            this.visible = false;
+        }
+        public function isVisible():Boolean
+        {
+            return this.visible;
+        }
         public function getLocation():Location
         {
             return this.venue_location;
@@ -99,6 +112,7 @@ package conscape.components
         }
         public function getEventData(key:String = null):*
         {
+            if (!this.eventData) return null;
             if (key) return this.eventData[key];
             return this.eventData;
         }
@@ -121,6 +135,14 @@ package conscape.components
             this.display.setArea(area);
             this.display.draw();
             this.label.y = this.display.getRadius() - 3;
+        }
+        public function filterChangeCallback(event:CurrentDataProviderEvent):void
+        {
+            if (event["data"] == null || (this.eventData && event["data"]["id"] == this.eventData["prominentGenre"]["id"])) {
+                this.show();
+            } else {
+                this.hide();
+            }
         }
         public function zoomChangedCallback(event:GestureEvent):void
         {

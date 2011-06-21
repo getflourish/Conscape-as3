@@ -286,14 +286,12 @@ package
                 // Tooltip mit dem Namen des Markers anzeigen
                 pt = map.locationPoint(event.location);
                 tooltip.venue_name.text = venue.getData("name");
-                tooltip.address.text = venue.getData("street");
+                tooltip.address.text = venue.getData("street") ? venue.getData("street") : "";
                 tooltip.artists.text = venue.getEventData("numberEvents") +" Events, " + venue.getEventData("totalAttendance") + " Besucher";
                 
                 var newColorTransform:ColorTransform = tooltip.venueIcon.transform.colorTransform;
                 newColorTransform.color = venue.getEventData("prominentGenre").colour;
                 tooltip.venueIcon.transform.colorTransform = newColorTransform;
-                
-                trace(venue.getEventData("prominentGenre").name);
                 
                 tooltip.visible = true;
                 tooltip.name = "bla";

@@ -69,19 +69,17 @@ package conscape.components
                 "numberOfDays": numberOfDays,
                 "selectedFilterGenre": this.selectedFilterGenre
             }));
-            dispatchEvent(new CurrentDataProviderEvent(CurrentDataProviderEvent.GENRE_FILTER_CHANGE, {
-                "selectedFilterGenre": this.selectedFilterGenre
-            }));
+            dispatchEvent(new CurrentDataProviderEvent(CurrentDataProviderEvent.GENRE_FILTER_CHANGE, this.selectedFilterGenre));
         }
         public function getSelectedFilterGenre():Object
         {
             return this.selectedFilterGenre;
         }
-        private function dateChangeCallback(event:TimelineEvent):void
+        private function getNewData(_startdate:Date, _enddate:Date, numberOfDays:Number):void
         {
-            var startdate:String = MathsUtil.convertASDateToMySQLTimestamp(event.data.startdate);
-            var enddate:String = MathsUtil.convertASDateToMySQLTimestamp(event.data.enddate);
-            numberOfDays = event.data.numberOfDays;
+            var startdate:String = MathsUtil.convertASDateToMySQLTimestamp(_startdate);
+            var enddate:String = MathsUtil.convertASDateToMySQLTimestamp(_enddate);
+
             if (enddate) {
                 var query:String = [
                     "SELECT lastfm_venue_id, COUNT(*) as number_events, SUM(attendance) as total_attendance, GROUP_CONCAT(genres SEPARATOR ',') as genre_list",
@@ -120,7 +118,7 @@ package conscape.components
                             totalGenreCount += 1;
                         }
                     }
-                    var prominentGenre = {"count": -1};
+                    var prominentGenre = {"count": -1, "id": "haha"};
                     for each(var genreItem:Object in genres) {
                         if (genreItem["count"] > prominentGenre["count"]) {
                             prominentGenre = genreItem;
@@ -144,6 +142,10 @@ package conscape.components
                     "selectedFilterGenre": this.selectedFilterGenre
                 }));
             });
+        }
+        private function dateChangeCallback(event:TimelineEvent):void
+        {
+            this.getNewData(event.data.startdate, event.data.enddate, event.data.numberOfDays);
         }
     }
 }
