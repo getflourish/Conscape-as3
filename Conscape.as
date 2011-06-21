@@ -112,6 +112,8 @@ package
             this.genreChartBar = new GenreChartBar(stage.stageHeight - 100 - TIMELINEHEIGHT, 75, currentDataProvider);
             this.genreChartBar.x = stage.stageWidth - 150;
             this.genreChartBar.y = 50;
+
+            this.addChild(this.genreChartBar);
             
             // fader
             this.fader = new Shape();
