@@ -145,7 +145,7 @@ package
                 stage.stageWidth,
                 stage.stageHeight - TIMELINEHEIGHT,
                 true,
-            	new CloudmadeProvider(10,18,"c1862c9125834b9fa203084d73eba088", 19816),
+            	new CloudmadeProvider(10,18,"c1862c9125834b9fa203084d73eba088", 31408),
             	new Location(52.522, 13.405),
                 currentScale);
             map.x = map.y = 0;
@@ -286,18 +286,18 @@ package
                 map.removeMarker("bla");
                 // Tooltip mit dem Namen des Markers anzeigen
                 pt = map.locationPoint(event.location);
-                tooltip.venue_name.text = venue.getData("name");
-
-                tooltip.address.text = TextUtil.truncateTextField(tooltip.address);
-                tooltip.address.text = venue.getData("street") ? venue.getData("street") : "";
-                tooltip.artists.text = venue.getEventData("numberEvents") +" Events, " + venue.getEventData("totalAttendance") + " Besucher";
+                tooltip.gfx.venue_name.text = venue.getData("name");
+                tooltip.gfx.address.text = venue.getData("street") ? venue.getData("street") : "";
+                tooltip.gfx.artists.text = venue.getEventData("numberEvents") && venue.getEventData("totalAttendance") ? venue.getEventData("numberEvents") +" Events, " + venue.getEventData("totalAttendance") + " Besucher" : "";
                 
-                var newColorTransform:ColorTransform = tooltip.venueIcon.transform.colorTransform;
+                var newColorTransform:ColorTransform = tooltip.gfx.venueIcon.transform.colorTransform;
                 newColorTransform.color = venue.getEventData("prominentGenre").colour;
-                tooltip.venueIcon.transform.colorTransform = newColorTransform;
+                tooltip.gfx.venueIcon.transform.colorTransform = newColorTransform;
                 
                 tooltip.visible = true;
                 tooltip.name = "bla";
+                tooltip.gfx.y = -150 - venue.height / 2;
+                
                 map.putMarker(map.pointLocation(pt), tooltip);
                 map.zoomTo(14, event.location, null, 0.5);
             }
