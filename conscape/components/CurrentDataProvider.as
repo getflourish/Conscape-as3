@@ -120,10 +120,17 @@ package conscape.components
                             totalGenreCount += 1;
                         }
                     }
+                    var prominentGenre = {"count": -1};
+                    for each(var genreItem:Object in genres) {
+                        if (genreItem["count"] > prominentGenre["count"]) {
+                            prominentGenre = genreItem;
+                        }
+                    }
                     venue_event_data[item["lastfm_venue_id"]] = {
                         "numberEvents": item["number_events"],
                         "totalAttendance": item["total_attendance"],
-                        "genres": genres
+                        "genres": genres,
+                        "prominentGenre": prominentGenre
                     };
                     if (item["number_events"] > maxNumberEvents) maxNumberEvents = item["number_events"];
                     if (item["total_attendance"] > maxAttendance) maxAttendance = item["total_attendance"];
