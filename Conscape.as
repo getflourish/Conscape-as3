@@ -289,7 +289,6 @@ package
                 tooltip.address.text = venue.getData("street");
                 tooltip.artists.text = venue.getEventData("numberEvents") +" Events, " + venue.getEventData("totalAttendance") + " Besucher";
                 
-                var c:int = venue.prominentGenre
                 var newColorTransform:ColorTransform = tooltip.venueIcon.transform.colorTransform;
                 newColorTransform.color = 0x336699;
                 tooltip.venueIcon.transform.colorTransform = newColorTransform;
