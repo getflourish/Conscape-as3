@@ -22,6 +22,8 @@ package conscape.components
     
     import id.core.TouchMovieClip;
     import gl.events.GestureEvent;
+    
+    import gs.TweenLite;
 
     public class Venue extends TouchMovieClip
     {
@@ -89,11 +91,15 @@ package conscape.components
         }
         private function show():void
         {
+            TweenLite.to(this, 1, {alpha: 1});
             this.visible = true;
         }
         private function hide():void
         {
-            this.visible = false;
+            TweenLite.to(this, 1, {alpha: 0, onComplete:makeInvisible});
+        }
+        private function makeInvisible() {
+                this.visible = false;
         }
         public function isVisible():Boolean
         {
