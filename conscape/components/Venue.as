@@ -55,10 +55,8 @@ package conscape.components
                 this.venue_data["geo_long"]
             );
         	
-        	// this.display = new CircleDisplay(this, this.currentDataProvider, Genre.getGenreObject());
-            // this.display.setArea(3);
-            this.display = new PieChart([1]);
-            this.display.setRadius(1);
+        	this.display = new CircleDisplay(this, this.currentDataProvider, Genre.getGenreObject());
+            this.display.setArea(3);
             
             this.display.draw();
             this.addChild(this.display);
