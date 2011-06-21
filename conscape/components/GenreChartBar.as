@@ -96,8 +96,15 @@ package conscape.components
         public function draw():void
         {
             var y:Number = 0;
-            //this.bar.graphics.clear();
+            var filterGenre:Object = this.currentDataProvider.getSelectedFilterGenre();
             for each(var genreName:String in Genre.ORDER) {
+                if (filterGenre && filterGenre["id"] != genreName) {
+                    this.chartRects[genreName].alpha = 0.5;
+                    this.chartLabels[genreName].alpha = 0.5;
+                } else {
+                    this.chartRects[genreName].alpha = 1.0;
+                    this.chartLabels[genreName].alpha = 1.0;
+                }
                 var barHeight:Number = this.chartHeight * (this.totalGenres[genreName]["count"]/this.currentDataProvider.getTotalGenreCount());
                 this.chartRects[genreName].graphics.clear();
                 this.chartRects[genreName].y = y;
