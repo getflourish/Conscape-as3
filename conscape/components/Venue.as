@@ -13,6 +13,7 @@ package conscape.components
     import flash.filters.BitmapFilter;
     import flash.filters.BitmapFilterQuality;
     import flash.filters.DropShadowFilter;
+    import flash.utils.Dictionary;
 
     import conscape.events.*;
     import conscape.util.MathsUtil;
@@ -22,6 +23,13 @@ package conscape.components
     
     import id.core.TouchMovieClip;
     import gl.events.GestureEvent;
+    
+    import com.maclema.mysql.Statement;
+    import com.maclema.mysql.Connection;
+    import com.maclema.mysql.ResultSet;
+    import com.maclema.mysql.MySqlToken;
+    import com.maclema.mysql.events.MySqlEvent;
+    import com.maclema.mysql.events.MySqlErrorEvent;
     
     import gs.TweenLite;
 
@@ -88,6 +96,52 @@ package conscape.components
             this.addChild(this.label);
         	
         	addEventListener(MouseEvent.ROLL_OVER, bringToFront, true);
+        }
+        public function getTopArtists(callback:Function, startDate:Date = null, endDate:Date = null):void
+        {
+            var venue_id = this.venue_data["lastfm_id"];
+            var con:Connection = this.currentDataProvider.getConnection();
+            if (startDate && endDate) {
+                var startdate:String = MathsUtil.convertASDateToMySQLTimestamp(startDate);
+                var enddate:String = MathsUtil.convertASDateToMySQLTimestamp(endDate);
+
+                var query:String = [
+                    "SELECT artists",
+                    "FROM events",
+                    "WHERE startdate BETWEEN '"+startdate+"' AND '"+enddate+"' AND lastfm_venue_id = '"+venue_id+"'"
+                ].join(" ");
+            } else {
+                var query:String = [
+                    "SELECT artists",
+                    "FROM events",
+                    "WHERE lastfm_venue_id = '"+venue_id+"'"
+                ].join(" ");
+            }
+            var st:Statement = con.createStatement(); 
+            var token:MySqlToken = st.executeQuery(query);
+            token.addEventListener(MySqlErrorEvent.SQL_ERROR, function(event:MySqlErrorEvent)
+            {
+                trace(event.msg);
+            });
+            token.addEventListener(MySqlEvent.RESULT, function(event:MySqlEvent)
+            {
+                var artistCounts:Dictionary = new Dictionary();
+                for each(var item:* in event.resultSet.getRows()) {
+                    for each(var artistName:String in String(item["artists"]).split(";;;")) {
+                        if (artistCounts[artistName] == null) artistCounts[artistName] = 0;
+                        artistCounts[artistName] += 1;
+                    }
+                }
+                var artists:Array = [];
+                for(var key:String in artistCounts) {
+                    artists.push({
+                        "name": key,
+                        "count": artistCounts[key]
+                    });
+                }
+                artists.sortOn(["count", "name"], [Array.DESCENDING, Array.CASEINSENSITIVE]);
+                if (callback != null) callback(artists);
+            });
         }
         private function show():void
         {

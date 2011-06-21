@@ -300,6 +300,16 @@ package
                 
                 map.putMarker(map.pointLocation(pt), tooltip);
                 map.zoomTo(14, event.location, null, 0.5);
+                
+                venue.getTopArtists(function (artists:Array) {
+                    if (artists.length) {
+                        var artistsStringified:Array = [];
+                        for each(var artist:Object in artists.slice(0, 4)) {
+                            artistsStringified.push(artist["name"] + " (" + artist["count"] + ")");
+                        }
+                        tooltip.gfx.artists.text = artistsStringified.join(", ");
+                    }
+                }, timeline.getStartDate(), timeline.getEndDate());
             }
         }
         private function onCenterZoom (event:GestureEvent):void
