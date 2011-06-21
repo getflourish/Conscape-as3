@@ -19,9 +19,11 @@ package conscape.components
         private var venue_event_data:Dictionary;
         private var maxAttendance:Number = 0;
         private var maxNumberEvents:Number = 0;
+        private var numberOfDays:Number = 0;
         private var totalGenres:Object;
         private var totalGenreCount:Number;
         private var timeline:Timeline;
+        private var selectedFilterGenre:Object;
         
         private var con:Connection;
         
@@ -52,11 +54,34 @@ package conscape.components
         {
             return this.totalGenreCount;
         }
+        public function setSelectedFilterGenre(genre:Object):void
+        {
+            if (genre) {
+                this.selectedFilterGenre = genre;
+            } else {
+                this.selectedFilterGenre = null;
+            }
+            dispatchEvent(new CurrentDataProviderEvent(CurrentDataProviderEvent.CHANGE, {
+                "maxNumberEvents": maxNumberEvents,
+                "maxAttendance": maxAttendance,
+                "totalGenres": totalGenres,
+                "totalGenreCount": totalGenreCount,
+                "numberOfDays": numberOfDays,
+                "selectedFilterGenre": this.selectedFilterGenre
+            }));
+            dispatchEvent(new CurrentDataProviderEvent(CurrentDataProviderEvent.GENRE_FILTER_CHANGE, {
+                "selectedFilterGenre": this.selectedFilterGenre
+            }));
+        }
+        public function getSelectedFilterGenre():Object
+        {
+            return this.selectedFilterGenre;
+        }
         private function dateChangeCallback(event:TimelineEvent):void
         {
             var startdate:String = MathsUtil.convertASDateToMySQLTimestamp(event.data.startdate);
             var enddate:String = MathsUtil.convertASDateToMySQLTimestamp(event.data.enddate);
-            var numberOfDays:Number = event.data.numberOfDays;
+            numberOfDays = event.data.numberOfDays;
             if (enddate) {
                 var query:String = [
                     "SELECT lastfm_venue_id, COUNT(*) as number_events, SUM(attendance) as total_attendance, GROUP_CONCAT(genres SEPARATOR ',') as genre_list",
@@ -108,7 +133,8 @@ package conscape.components
                     "maxAttendance": maxAttendance,
                     "totalGenres": totalGenres,
                     "totalGenreCount": totalGenreCount,
-                    "numberOfDays": numberOfDays
+                    "numberOfDays": numberOfDays,
+                    "selectedFilterGenre": this.selectedFilterGenre
                 }));
             });
         }
