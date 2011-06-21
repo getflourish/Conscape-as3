@@ -2,44 +2,37 @@ package conscape.components
 {
     import flash.display.Shape;
     
+    import conscape.events.*;
+    
     public class PieChart extends Shape
     {
 		private static var CONVERT_TO_RADIANS:Number = Math.PI / 180;
-		private var genreData:Object;
-		private var percentages:Array;
-		private var colours:Array;
-		
+		private var venue:Venue;
+		private var currentDataProvider:CurrentDataProvider;
 		private var radius:Number = 1;
 		
-        public function PieChart(_genreData:Object)
+        public function PieChart(_venue:Venue, _currentDataProvider:CurrentDataProvider)
         {
-            this.setData(_genreData);
-            this.colours = Genre.COLOURS;
+            this.venue = _venue;
+            this.currentDataProvider = _currentDataProvider;
         }
-        public function setData(_genreData:Object):void
-        {
-            this.genreData = _genreData;
-            this.calculatePercentages();
-        }
-        public function getData():Object
-        {
-            return this.genreData;
-        }
-        private function calculatePercentages():void
+        private function calculatePercentages(eventData:Object):Array
         {
             var total:Number = 0;            
             for each(var genreName:String in Genre.ORDER) {
-                total += genreData[genreName]["count"];   
+                total += eventData["genres"][genreName]["count"];   
             }
-            this.percentages = [];
+            var percentages:Array = [];
             var ratio = 100/total;
             for each(var genreName:String in Genre.ORDER) {
-                if (genreData[genreName]["count"] > 0) {
-                    this.percentages.push(genreData[genreName]["count"]*ratio/100);
-                } else {
-                    this.percentages.push(0);
+                if (eventData["genres"][genreName]["count"] > 0) {
+                    percentages.push({
+                        "id": genreName,
+                        "percentage": eventData["genres"][genreName]["count"]*ratio/100
+                    });
                 }
             }
+            return percentages;
         }
         public function setRadius(_radius:Number):void
         {
@@ -60,11 +53,21 @@ package conscape.components
         public function draw():void
         {
             this.graphics.clear();
-            var rotation:Number = 0;
-            for (var i:Number = 0; i < this.percentages.length; i++) {
-                if (this.percentages[i] == 0) continue;
-                PieChart.drawWedge(this, this.radius, this.percentages[i], this.colours[i], rotation);
-                rotation += 360 * (this.percentages[i]);
+            var eventData:Object = venue.getEventData();
+            if (eventData) {
+                var area:Number = 3;
+                area = Math.sqrt(eventData["totalAttendance"]) * 50;
+                if (area < 3) area = 3;
+                    
+                this.setArea(area);
+                
+                var rotation:Number = 0;
+                for each(var percentage:Object in this.calculatePercentages(eventData)) {
+                    PieChart.drawWedge(this, this.radius, percentage["percentage"], eventData["genres"][percentage["id"]]["colour"]);
+                    rotation += 360 * percentage["percentage"];
+                }
+            } else {
+                this.setArea(0);
             }
         }
         public static function drawWedge(_shape:Shape, _radius:Number, _percent:Number, _colour:uint = 0xFF0000, _rotationOffset:Number = 0):void

@@ -55,9 +55,7 @@ package conscape.components
                 this.venue_data["geo_long"]
             );
         	
-        	this.display = new CircleDisplay(this, this.currentDataProvider, Genre.getGenreObject());
-            this.display.setArea(3);
-            this.display.draw();
+        	this.display = new CircleDisplay(this, this.currentDataProvider);
             this.addChild(this.display);
             
             Font.registerFont(HelveticaNeueBold);
@@ -123,16 +121,7 @@ package conscape.components
         public function dataChangeCallback(event:CurrentDataProviderEvent):void
         {
             this.eventData = this.currentDataProvider.getEventDataForVenue(this.getId());
-            var area:Number = 3;
-            if (this.eventData) {
-                this.display.alpha = MathsUtil.map(this.map.getZoom(), 12, 16, 0.3, 1.0);
-                area = Math.sqrt(this.eventData["totalAttendance"]) * 50;
-                if (area < 3) area = 3;
-                this.display.setData(this.eventData["genres"]);
-            } else {
-                this.display.setData(Genre.getGenreObject());
-            }
-            this.display.setArea(area);
+            this.display.alpha = MathsUtil.map(this.map.getZoom(), 12, 16, 0.3, 1.0);
             this.display.draw();
             this.label.y = this.display.getRadius() - 3;
         }
