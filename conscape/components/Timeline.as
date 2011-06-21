@@ -81,7 +81,14 @@ package conscape.components
             this.initHeight = height;
             this.initFormats();
             init();
-            
+        }
+        public function getStartDate():Date
+        {
+            return this.startdate;
+        }
+        public function getEndDate():Date
+        {
+            return this.enddate;
         }
         public function setData(_data:Array):void
         {
@@ -194,7 +201,7 @@ package conscape.components
             var d:Date = new Date(x);
             return d;
         }
-        private function getNumberOfDays():Number
+        public function getNumberOfDays():Number
         {
 			var span:Number = startdate.time - enddate.time;
 			var days:Number = span / Dates.MS_DAY;
