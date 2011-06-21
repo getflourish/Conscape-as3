@@ -306,8 +306,8 @@ package conscape.components
             var deltaX:Number = 100;
             var bottom:Number = bounds.height - dateLabelHeight;
             for each (var o:Object in mapping) {
-                trace(todayx);
-                trace(o.x);
+                //trace(todayx);
+                //trace(o.x);
                 if (todayx == o.x) {
                     graph.graphics.lineStyle(timeScale / 2, 0xff0000, 1, false, LineScaleMode.NONE, CapsStyle.NONE, JointStyle.BEVEL);
                 } else {
