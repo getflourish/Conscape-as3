@@ -290,8 +290,10 @@ package
                 tooltip.artists.text = venue.getEventData("numberEvents") +" Events, " + venue.getEventData("totalAttendance") + " Besucher";
                 
                 var newColorTransform:ColorTransform = tooltip.venueIcon.transform.colorTransform;
-                newColorTransform.color = 0x336699;
+                newColorTransform.color = venue.getEventData("prominentGenre").colour;
                 tooltip.venueIcon.transform.colorTransform = newColorTransform;
+                
+                trace(venue.getEventData("prominentGenre").name);
                 
                 tooltip.visible = true;
                 tooltip.name = "bla";
