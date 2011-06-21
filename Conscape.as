@@ -340,13 +340,16 @@ package
             }
         }
         private function onKey(event:KeyboardEvent) {
-            trace("foo");
-            if (black) {
-                TweenLite.to(fader, 1, {alpha: 0});   
-                black = false;
-            } else {
-                TweenLite.to(fader, 1, {alpha: 1});
-                black = true;
+            switch(event.keyCode) {
+                case 32:
+                    if (black) {
+                        TweenLite.to(fader, 1, {alpha: 0});   
+                        black = false;
+                    } else {
+                        TweenLite.to(fader, 1, {alpha: 1});
+                        black = true;
+                    }
+                    break;
             }
         }
     }
