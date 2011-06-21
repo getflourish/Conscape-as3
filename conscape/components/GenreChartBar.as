@@ -13,8 +13,10 @@ package conscape.components
     import flash.filters.DropShadowFilter;
     
     import conscape.events.*;
+    
+    import id.core.TouchSprite;
 
-    public class GenreChartBar extends Sprite
+    public class GenreChartBar extends TouchSprite
     {
         private var currentDataProvider:CurrentDataProvider;
         private var totalGenres:Object;

@@ -97,6 +97,11 @@ package conscape.components
             if (key) return this.venue_data[key];
             return this.venue_data;
         }
+        public function getEventData(key:String = null):*
+        {
+            if (key) return this.eventData[key];
+            return this.eventData;
+        }
         public function getId():String
         {
             return this.venue_data["lastfm_id"];

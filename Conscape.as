@@ -32,6 +32,7 @@ package
     import flash.filters.ColorMatrixFilter;
     import flash.geom.Matrix;
     import flash.geom.Point;
+    import flash.geom.ColorTransform;
     import flash.text.TextField;
     import flash.text.TextFormat;
 
@@ -111,7 +112,6 @@ package
             this.genreChartBar = new GenreChartBar(stage.stageHeight - 100 - TIMELINEHEIGHT, 75, currentDataProvider);
             this.genreChartBar.x = stage.stageWidth - 150;
             this.genreChartBar.y = 50;
-            stage.addChild(this.genreChartBar);
             
             // fader
             this.fader = new Shape();
@@ -283,7 +283,15 @@ package
                 map.removeMarker("bla");
                 // Tooltip mit dem Namen des Markers anzeigen
                 pt = map.locationPoint(event.location);
-                tooltip.label_txt.text = venue.getData("name");
+                tooltip.venue_name.text = venue.getData("name");
+                tooltip.address.text = venue.getData("street");
+                tooltip.artists.text = venue.getEventData("numberEvents") +" Events, " + venue.getEventData("totalAttendance") + " Besucher";
+                
+                var c:int = venue.prominentGenre
+                var newColorTransform:ColorTransform = tooltip.venueIcon.transform.colorTransform;
+                newColorTransform.color = 0x336699;
+                tooltip.venueIcon.transform.colorTransform = newColorTransform;
+                
                 tooltip.visible = true;
                 tooltip.name = "bla";
                 map.putMarker(map.pointLocation(pt), tooltip);
