@@ -3,6 +3,7 @@ package conscape.components
     import flash.display.Shape;
     
     import conscape.events.*;
+    import conscape.util.MathsUtil;
     
     public class CircleDisplay extends Shape
     {
@@ -36,6 +37,7 @@ package conscape.components
             this.graphics.clear();
             var eventData:Object = venue.getEventData();
             if (eventData) {
+                this.alpha = MathsUtil.map(eventData["numberEvents"], 0, this.currentDataProvider.getMaxNumberEvents(), 0.25, 1);
                 var area:Number = 3;
                 area = Math.sqrt(eventData["totalAttendance"]) * 50;
                 if (area < 3) area = 3;

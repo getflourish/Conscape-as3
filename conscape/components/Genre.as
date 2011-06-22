@@ -9,7 +9,8 @@ package conscape.components
 	        "jazz",
 	        "rock",
 	        "metal",
-	        "elektro"
+	        "elektro",
+	        "andere"
 	    ];
 	    public static const COLOURS:Array = [
 	        0xba305f,
@@ -18,7 +19,8 @@ package conscape.components
 	        0x986dda,
 	        0x7bc23d,
 	        0xb9c7cb,
-	        0xffd400
+	        0xffd400,
+	        0xFF0000
 	    ];
 	    public static const NAMES:Array = [
 	        "Pop",
@@ -27,7 +29,8 @@ package conscape.components
 	        "Jazz",
 	        "Rock",
 	        "Metal",
-	        "Elektro"
+	        "Elektro",
+	        "Andere"
 	    ];
 	    
 		public function Genre()

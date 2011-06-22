@@ -134,18 +134,24 @@ package conscape.components
                 totalGenres = Genre.getGenreObject();
                 for each(var item:* in event.resultSet.getRows()) {
                     var genres:Object = Genre.getGenreObject();
+                    var prominentGenre = Genre.getGenre("andere");
                     if (item["genre_list"]) {
+                        trace("j " + item["number_events"]);
                         for each(var genreName:String in String(item["genre_list"]).split(",")) {
                             genres[genreName]["count"] += 1;
                             totalGenres[genreName]["count"] += 1;
                             totalGenreCount += 1;
                         }
-                    }
-                    var prominentGenre = {"count": -1, "id": "haha"};
-                    for each(var genreItem:Object in genres) {
-                        if (genreItem["count"] > prominentGenre["count"]) {
-                            prominentGenre = genreItem;
+                        for each(var genreItem:Object in genres) {
+                            if (genreItem["count"] > prominentGenre["count"]) {
+                                prominentGenre = genreItem;
+                            }
                         }
+                    } else {
+                        trace("n " + item["number_events"] + " " + item["lastfm_venue_id"]);
+                        genres["andere"]["count"] += item["number_events"];
+                        totalGenres["andere"]["count"] += item["number_events"];
+                        totalGenreCount += item["number_events"];
                     }
                     venue_event_data[item["lastfm_venue_id"]] = {
                         "numberEvents": item["number_events"],
