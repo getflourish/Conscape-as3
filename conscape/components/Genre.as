@@ -37,12 +37,12 @@ package conscape.components
 		{
 		    var genres:Object = {};
 		    for (var i:Number = 0; i < Genre.ORDER.length; i++) {
-		      genres[Genre.ORDER[i]] = {
-		          "id": Genre.ORDER[i],
-		          "name": Genre.NAMES[i],
-		          "colour": Genre.COLOURS[i],
-		          "count": 0
-		      };
+		        genres[Genre.ORDER[i]] = {
+		            "id": Genre.ORDER[i],
+		            "name": Genre.NAMES[i],
+		            "colour": Genre.COLOURS[i],
+		            "count": 0
+		        };
 		    }
 		    return genres;
 		}

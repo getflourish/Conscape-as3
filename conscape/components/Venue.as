@@ -145,12 +145,12 @@ package conscape.components
         }
         private function show():void
         {
-            TweenLite.to(this, 1, {alpha: 1});
             this.visible = true;
+            TweenLite.to(this, 1, {alpha: 1});
         }
         private function hide():void
         {
-            TweenLite.to(this, 1, {alpha: 0, onComplete:makeInvisible});
+            TweenLite.to(this, 1, {alpha: 0, onComplete: makeInvisible});
         }
         private function makeInvisible() {
                 this.visible = false;
@@ -187,8 +187,8 @@ package conscape.components
         }
         public function filterChangeCallback(event:CurrentDataProviderEvent):void
         {
-            if (event["data"] == null || (this.eventData && event["data"]["id"] == this.eventData["prominentGenre"]["id"])) {
-                this.show();
+            if (this.eventData && event["data"][this.eventData["prominentGenre"]["id"]]) {
+                this.show()
             } else {
                 this.hide();
             }

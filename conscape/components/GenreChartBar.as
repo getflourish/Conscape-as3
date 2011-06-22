@@ -83,11 +83,7 @@ package conscape.components
 		}
 		private function onBarTap (event:TouchEvent):void
         {
-            if (this.currentDataProvider.getSelectedFilterGenre() && this.currentDataProvider.getSelectedFilterGenre()["id"] == event.target.name) {
-                this.currentDataProvider.setSelectedFilterGenre(null);
-            } else {
-                this.currentDataProvider.setSelectedFilterGenre(Genre.getGenre(event.target.name));
-            }
+            this.currentDataProvider.toggleSelectionOfGenre(event.target.name);
         }
 		public function dataChangeCallback(event:CurrentDataProviderEvent):void
         {
@@ -97,22 +93,21 @@ package conscape.components
         public function draw():void
         {
             var y:Number = 0;
-            var filterGenre:Object = this.currentDataProvider.getSelectedFilterGenre();
-            for each(var genreName:String in Genre.ORDER) {
-                if (filterGenre && filterGenre["id"] != genreName) {
-                    TweenLite.to(this.chartRects[genreName], 0.5, {alpha:0.5});
-                    TweenLite.to(this.chartLabels[genreName], 0.5, {alpha:0.5});
+            for each(var genreId:String in Genre.ORDER) {
+                if (this.currentDataProvider.isSelectedGenre(genreId)) {
+                    TweenLite.to(this.chartRects[genreId], 0.5, {alpha:1});
+                    TweenLite.to(this.chartLabels[genreId], 0.5, {alpha:1});
                 } else {
-                    TweenLite.to(this.chartRects[genreName], 0.5, {alpha:1});
-                    TweenLite.to(this.chartLabels[genreName], 0.5, {alpha:1});
+                    TweenLite.to(this.chartRects[genreId], 0.5, {alpha:0.5});
+                    TweenLite.to(this.chartLabels[genreId], 0.5, {alpha:0.5});
                 }
-                var barHeight:Number = this.chartHeight * (this.totalGenres[genreName]["count"]/this.currentDataProvider.getTotalGenreCount());
-                this.chartRects[genreName].graphics.clear();
-                this.chartRects[genreName].y = y;
-                this.chartRects[genreName].graphics.beginFill(this.totalGenres[genreName]["colour"], 100);
-                this.chartRects[genreName].graphics.drawRect(0, 0, this.chartWidth, barHeight);
-                this.chartRects[genreName].graphics.endFill();
-                this.chartLabels[genreName].y = y + barHeight/2 - 11;
+                var barHeight:Number = this.chartHeight * (this.totalGenres[genreId]["count"]/this.currentDataProvider.getTotalGenreCount());
+                this.chartRects[genreId].graphics.clear();
+                this.chartRects[genreId].y = y;
+                this.chartRects[genreId].graphics.beginFill(this.totalGenres[genreId]["colour"], 100);
+                this.chartRects[genreId].graphics.drawRect(0, 0, this.chartWidth, barHeight);
+                this.chartRects[genreId].graphics.endFill();
+                this.chartLabels[genreId].y = y + barHeight/2 - 11;
                 y += barHeight;
             }
         }

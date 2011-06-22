@@ -23,7 +23,7 @@ package conscape.components
         private var totalGenres:Object;
         private var totalGenreCount:Number;
         private var timeline:Timeline;
-        private var selectedFilterGenre:Object;
+        private var selectedGenres:Dictionary;
         
         private var con:Connection;
         
@@ -32,6 +32,10 @@ package conscape.components
             this.venue_event_data = new Dictionary();
             this.timeline = _timeline;
             this.con = _con;
+            this.selectedGenres = new Dictionary();
+            for each(var gid:String in Genre.ORDER) {
+                this.selectedGenres[gid] = true;
+		    }
             timeline.addEventListener(TimelineEvent.RANGECHANGE, dateChangeCallback);
         }
         public function getConnection():Connection
@@ -58,26 +62,41 @@ package conscape.components
         {
             return this.totalGenreCount;
         }
-        public function setSelectedFilterGenre(genre:Object):void
+        public function selectGenre(id:String):void
         {
-            if (genre) {
-                this.selectedFilterGenre = genre;
-            } else {
-                this.selectedFilterGenre = null;
-            }
+            this.selectedGenres[id] = true;
+            this.selectedGenresChanged();
+        }
+        public function unselectGenre(id:String):void
+        {
+            this.selectedGenres[id] = false;
+            this.selectedGenresChanged();
+        }
+        public function toggleSelectionOfGenre(id:String):Boolean
+        {
+            this.selectedGenres[id] = !this.selectedGenres[id];
+            this.selectedGenresChanged();
+            return this.selectedGenres[id];
+        }
+        public function isSelectedGenre(id:String):Boolean
+        {
+            return this.selectedGenres[id];
+        }
+        private function selectedGenresChanged():void
+        {
             dispatchEvent(new CurrentDataProviderEvent(CurrentDataProviderEvent.CHANGE, {
                 "maxNumberEvents": maxNumberEvents,
                 "maxAttendance": maxAttendance,
                 "totalGenres": totalGenres,
                 "totalGenreCount": totalGenreCount,
                 "numberOfDays": numberOfDays,
-                "selectedFilterGenre": this.selectedFilterGenre
+                "selectedGenres": this.selectedGenres
             }));
-            dispatchEvent(new CurrentDataProviderEvent(CurrentDataProviderEvent.GENRE_FILTER_CHANGE, this.selectedFilterGenre));
+            dispatchEvent(new CurrentDataProviderEvent(CurrentDataProviderEvent.GENRE_FILTER_CHANGE, this.selectedGenres));
         }
-        public function getSelectedFilterGenre():Object
+        public function getSelectedGenres():Object
         {
-            return this.selectedFilterGenre;
+            return this.selectedGenres;
         }
         private function getNewData(_startdate:Date, _enddate:Date, numberOfDays:Number):void
         {
@@ -143,7 +162,7 @@ package conscape.components
                     "totalGenres": totalGenres,
                     "totalGenreCount": totalGenreCount,
                     "numberOfDays": numberOfDays,
-                    "selectedFilterGenre": this.selectedFilterGenre
+                    "selectedGenres": this.selectedGenres
                 }));
             });
         }
