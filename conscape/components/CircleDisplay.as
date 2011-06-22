@@ -40,6 +40,8 @@ package conscape.components
                 this.alpha = MathsUtil.map(eventData["numberEvents"], 0, this.currentDataProvider.getMaxNumberEvents(), 0.25, 1);
                 var area:Number = 3;
                 area = Math.sqrt(eventData["totalAttendance"]) * 50;
+                // TODO: HACK
+                if (eventData["prominentGenre"]["id"] == "andere") area /= 2;
                 if (area < 3) area = 3;
                     
                 this.setArea(area);
