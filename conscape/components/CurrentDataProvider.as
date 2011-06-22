@@ -148,10 +148,11 @@ package conscape.components
                             }
                         }
                     } else {
+                        // TODO: HACK
                         trace("n " + item["number_events"] + " " + item["lastfm_venue_id"]);
-                        genres["andere"]["count"] += item["number_events"];
-                        totalGenres["andere"]["count"] += item["number_events"];
-                        totalGenreCount += item["number_events"];
+                        genres["andere"]["count"] += Math.ceil(item["number_events"]/2);
+                        totalGenres["andere"]["count"] += Math.ceil(item["number_events"]/2);
+                        totalGenreCount += Math.ceil(item["number_events"]/2);
                     }
                     venue_event_data[item["lastfm_venue_id"]] = {
                         "numberEvents": item["number_events"],
