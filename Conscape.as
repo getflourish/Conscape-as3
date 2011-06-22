@@ -60,8 +60,8 @@ package
         private const PADDINGRIGHT:int = 100;
         private const BOTTOMPADDING:int = 300;
         private const TIMELINEPADDINGLEFT = 20;
-        private const TIMELINEPADDINGBOTTOM = 50;
-        private const TIMELINEHEIGHT = 150;
+        private const TIMELINEPADDINGBOTTOM = 20;
+        private const TIMELINEHEIGHT = 100;
         private var auto:Boolean = false;
         private var cachedMarkers:Dictionary;
         private var con:Connection;
@@ -185,7 +185,7 @@ package
                 timeline.graphColor = 0x2A2A2A;
                 timeline.setAxis("startdate", "anzahl");
                 timeline.x = TIMELINEPADDINGLEFT;
-                timeline.y = map.height - TIMELINEPADDINGBOTTOM - TIMELINEHEIGHT;
+                timeline.y = map.height - TIMELINEHEIGHT;
                 addChild(timeline);
             });
         }
@@ -232,8 +232,6 @@ package
         }
         private function visualizeEvents (startdate:String, enddate:String=null):void
         {
-
-
         }
         private function autoNextDate(event:TimerEvent):void
         {

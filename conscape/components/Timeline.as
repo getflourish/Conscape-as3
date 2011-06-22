@@ -53,6 +53,7 @@ package conscape.components
         private var maxDate:Date;
         private var numberOfDays:Number = 0;
         private var padding:Number = 15;
+        private var xPadding:Number = 40;
         private var pinchCenterX:Number = 0;
         private var startdate:Date;
         private var timeScale:Number = 1;
@@ -73,8 +74,8 @@ package conscape.components
             this.data = data;
             this.fields = [];
             this.padding = padding;
-            this.bounds = new Rectangle(padding, padding, width-2*padding, height-2*padding);
-            this.graphBounds = new Rectangle(padding, padding, width-2*padding, height - dateLabelHeight - 2*padding);
+            this.bounds = new Rectangle(xPadding, padding, width-2*xPadding, height-2*padding);
+            this.graphBounds = new Rectangle(xPadding, padding, width-2*xPadding, height - dateLabelHeight - 2*padding);
             this.initWidth = width;
             this.initHeight = height;
             this.initFormats();
