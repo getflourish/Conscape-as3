@@ -20,25 +20,35 @@ package conscape.components
 	        0xb9c7cb,
 	        0xffd400
 	    ];
+	    public static const NAMES:Array = [
+	        "Pop",
+	        "Black",
+	        "Latin",
+	        "Jazz",
+	        "Rock",
+	        "Metal",
+	        "Elektro"
+	    ];
 	    
 		public function Genre()
 		{
 		}
 		public static function getGenreObject():Object
 		{
-		    return {
-		        "pop": {"name": "Pop", "id": "pop", "colour": 0xba305f, "count": 0},
-		        "black": {"name": "Black", "id": "black", "colour": 0x4d3f37, "count": 0},
-		        "latin": {"name": "Latin", "id": "latin", "colour": 0xff8200, "count": 0},
-		        "jazz": {"name": "Jazz", "id": "jazz", "colour": 0x986dda, "count": 0},
-		        "rock": {"name": "Rock", "id": "rock", "colour": 0x7bc23d, "count": 0},
-		        "metal": {"name": "Metal", "id": "metal", "colour": 0xb9c7cb, "count": 0},
-		        "elektro": {"name": "Elektro", "id": "elektro", "colour": 0xffd400, "count": 0}
-		    };
+		    var genres:Object = {};
+		    for (var i:Number = 0; i < Genre.ORDER.length; i++) {
+		      genres[Genre.ORDER[i]] = {
+		          "id": Genre.ORDER[i],
+		          "name": Genre.NAMES[i],
+		          "colour": Genre.COLOURS[i],
+		          "count": 0
+		      };
+		    }
+		    return genres;
 		}
-		public static function getGenre(genre:String):Object
+		public static function getGenre(id:String):Object
 		{
-		    return Genre.getGenreObject()[genre];
+		    return Genre.getGenreObject()[id];
 		}
 	}
 
