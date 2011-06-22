@@ -5,14 +5,12 @@ package conscape.components
     import conscape.util.Dates;
     import conscape.view.ScrollView;
      
-    import flash.display.Sprite;
-    import flash.display.Graphics;
-    import flash.display.LineScaleMode;
-    import flash.display.CapsStyle;
-    import flash.display.JointStyle;
-    import flash.display.Shape;
-    import flash.geom.Rectangle;
-    import flash.geom.Point;
+    import flash.geom.*;
+    import flash.display.*;
+    
+    import flash.filters.BitmapFilter;
+    import flash.filters.BitmapFilterQuality;
+    import flash.filters.DropShadowFilter;
  
     import flash.text.Font;
     import flash.text.TextField;
@@ -106,7 +104,7 @@ package conscape.components
             this.scrollView.y = 0;
             this.scrollView.enableScrolling(ScrollView.HORIZONTAL);
             this.scrollView.showsHorizontalScrollIndicator = true;
-            this.scrollView.indicatorColor = 0xffffff;
+            this.scrollView.indicatorColor = 0x2A2A2A;
             this.scrollView.addEventListener(GestureEvent.GESTURE_SCALE, onPinch);
             this.scrollView.addEventListener(TouchEvent.TOUCH_UP, onTouchUp);
             this.scrollView.addEventListener(TouchEvent.TOUCH_DOWN, onTouchDown);
@@ -114,18 +112,60 @@ package conscape.components
             this.addChild(scrollView);
              
             // Hintergrund
+            
+            // Dropshadow
+            var dropShadow:DropShadowFilter = new DropShadowFilter();
+            dropShadow.color = 0x000000;
+            dropShadow.blurX = 5;
+            dropShadow.blurY = 5;
+            dropShadow.angle = 90;
+            dropShadow.alpha = 0.5;
+            dropShadow.distance = 0;
+            dropShadow.quality = BitmapFilterQuality.HIGH;
+            
+            // Gradient
+            var fType:String = GradientType.LINEAR;
+            var colors:Array = [ 0xF1F1F1, 0xAAAAAA ];
+            var alphas:Array = [ 1, 1 ];
+            var ratios:Array = [ 0, 255 ];
+            var matr:Matrix = new Matrix();
+            matr.createGradientBox(bounds.width, bounds.height, Math.PI/2, 0, 0 );
+            var sprMethod:String = SpreadMethod.PAD;
+            
             background = new Sprite();
             boundsRectangle = new Shape();
-            boundsRectangle.graphics.beginFill(0x0000ff, 0.1);
-            boundsRectangle.graphics.drawRect(0, 0, bounds.width, bounds.height);
-            boundsRectangle.graphics.endFill();
+            var g:Graphics = boundsRectangle.graphics;
+            g.beginGradientFill( fType, colors, alphas, ratios, matr, sprMethod );
+            g.drawRect(0, 0, bounds.width, graphBounds.height + padding);
+            g.endFill();
+            boundsRectangle.y = -padding;
             background.addChild(boundsRectangle);
-            // addChild(background);
+            boundsRectangle.filters = new Array(dropShadow);
+                
+            // background = new Sprite();
+            // boundsRectangle = new Shape();
+            // boundsRectangle.graphics.beginFill(0x0000ff, 1);
+            // boundsRectangle.graphics.drawRect(0, 0, bounds.width, bounds.height);
+            // boundsRectangle.graphics.endFill();
+            // background.addChild(boundsRectangle);
+            
+            // Hintergrund für Januar, Februar, ...
+            var bla = new Shape();
+            var g:Graphics = bla.graphics;
+            matr.createGradientBox(bounds.width, 15, Math.PI/2, 0, 0 );
+            g.beginGradientFill( fType, colors, alphas, ratios, matr, sprMethod );
+            g.drawRect(0, 0, bounds.width, 15);
+            g.endFill();
+            background.addChild(bla);
+            bla.y = graphBounds.height + 5;
+            bla.filters = new Array(dropShadow);
+            
+            addChildAt(background, 0);
              
             // Titel des Diagrams (wird vom Hauptprogramm gesetzt)
              
             this.title = new TextField();
-            this.addChild(title);
+            // this.addChild(title);
             this.title.width = graphBounds.width;
             this.title.x = 0;
             this.title.y = this.bounds.height + padding /  - Number(titleFormat.size);
@@ -146,12 +186,12 @@ package conscape.components
              
             // Ein paar Textformatierungen
             titleFormat = new TextFormat();
-            titleFormat.color = 0xffffff;
+            titleFormat.color = 0x2A2A2A;
             titleFormat.size = 18;
             titleFormat.font = "Helvetica";
              
             axisFormat = new TextFormat();
-            axisFormat.color = graphColor;
+            axisFormat.color = 0x2A2A2A;
             axisFormat.size = 14;
             axisFormat.font = "Helvetica";
         }

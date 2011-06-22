@@ -192,6 +192,7 @@ package conscape.view
 		{
 			horizontalScrollIndicator = new Sprite();
 			horizontalScrollIndicator.name = "hsi";
+			horizontalScrollIndicator.y = -3;
 			addChild(horizontalScrollIndicator);
 			
 			verticalScrollIndicator = new Sprite();
