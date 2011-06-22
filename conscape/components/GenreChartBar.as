@@ -17,6 +17,7 @@ package conscape.components
     import flash.events.MouseEvent;
     import gl.events.TouchEvent;
     import id.core.TouchSprite;
+    import gs.TweenLite;
 
     public class GenreChartBar extends TouchSprite
     {
@@ -96,8 +97,15 @@ package conscape.components
         public function draw():void
         {
             var y:Number = 0;
-            //this.bar.graphics.clear();
+            var filterGenre:Object = this.currentDataProvider.getSelectedFilterGenre();
             for each(var genreName:String in Genre.ORDER) {
+                if (filterGenre && filterGenre["id"] != genreName) {
+                    TweenLite.to(this.chartRects[genreName], 0.5, {alpha:0.5});
+                    TweenLite.to(this.chartLabels[genreName], 0.5, {alpha:0.5});
+                } else {
+                    TweenLite.to(this.chartRects[genreName], 0.5, {alpha:1});
+                    TweenLite.to(this.chartLabels[genreName], 0.5, {alpha:1});
+                }
                 var barHeight:Number = this.chartHeight * (this.totalGenres[genreName]["count"]/this.currentDataProvider.getTotalGenreCount());
                 this.chartRects[genreName].graphics.clear();
                 this.chartRects[genreName].y = y;

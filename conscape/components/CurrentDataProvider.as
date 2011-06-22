@@ -34,6 +34,10 @@ package conscape.components
             this.con = _con;
             timeline.addEventListener(TimelineEvent.RANGECHANGE, dateChangeCallback);
         }
+        public function getConnection():Connection
+        {
+            return this.con;
+        }
         public function getEventDataForVenue(venue_id:String):Object
         {
             return this.venue_event_data[venue_id];
@@ -95,17 +99,6 @@ package conscape.components
                     "GROUP BY lastfm_venue_id"
                     ].join(" ");
             }
-    
-                // Top Artists
-                
-                // query = [
-                //     "SELECT artists, COUNT(*) as number_events",
-                //     "FROM events",
-                //     "WHERE lastfm_venue_id = " + lastfm_id,
-                //     "GROUP BY artists",
-                //     "ORDER BY number_events DESC",
-                //     "LMIT 5"
-                //     ].join(" ");
 
             var st:Statement = con.createStatement(); 
             var token:MySqlToken = st.executeQuery(query);
