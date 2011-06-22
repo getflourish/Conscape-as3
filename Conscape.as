@@ -110,7 +110,7 @@ package
             loadVenues();
 
             this.genreChartBar = new GenreChartBar(stage.stageHeight - 100 - TIMELINEHEIGHT, 75, currentDataProvider);
-            this.genreChartBar.x = stage.stageWidth - 150;
+            this.genreChartBar.x = stage.stageWidth - TIMELINEPADDINGLEFT - genreChartBar.width;
             this.genreChartBar.y = 50;
 
             this.addChild(this.genreChartBar);
@@ -163,6 +163,7 @@ package
 
             // Tooltip
             tooltip = new Tooltip();
+            tooltip.y = -1000;
             addChild(tooltip);
             
             stage.addEventListener(KeyboardEvent.KEY_DOWN, onKey);
@@ -188,7 +189,7 @@ package
                 timeline.graphColor = 0x2A2A2A;
                 timeline.setAxis("startdate", "anzahl");
                 timeline.x = TIMELINEPADDINGLEFT;
-                timeline.y = map.height - TIMELINEHEIGHT;
+                timeline.y = map.height - TIMELINEHEIGHT + 50;
                 addChild(timeline);
             });
         }
