@@ -289,7 +289,7 @@ package
                 // Tooltip mit dem Namen des Markers anzeigen
                 pt = map.locationPoint(event.location);
                 tooltip.gfx.venue_name.text = venue.getData("name");
-                tooltip.gfx.address.text = venue.getData("street") ? venue.getData("street") + "(" + venue.getData("geo_lat") +", " + venue.getData("geo_long") + ")" : venue.getData("geo_lat") +", " + venue.getData("geo_long");
+                tooltip.gfx.address.text = venue.getData("street") ? venue.getData("street") : venue.getData("geo_lat") +", " + venue.getData("geo_long");
                 tooltip.gfx.stats.text = venue.getEventData("numberEvents") && venue.getEventData("totalAttendance") ? venue.getEventData("numberEvents") +" Events, " + venue.getEventData("totalAttendance") + " Besucher" : "";
                 
                 var newColorTransform:ColorTransform = tooltip.gfx.venueIcon.transform.colorTransform;
