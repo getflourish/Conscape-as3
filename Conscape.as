@@ -59,7 +59,7 @@ package
 
         private const PADDINGRIGHT:int = 100;
         private const BOTTOMPADDING:int = 300;
-        private const TIMELINEPADDINGLEFT = 20;
+        private const TIMELINEPADDINGLEFT = 50;
         private const TIMELINEPADDINGBOTTOM = 20;
         private const TIMELINEHEIGHT = 100;
         private var auto:Boolean = false;
@@ -115,6 +115,8 @@ package
 
             this.addChild(this.genreChartBar);
             
+            this.genreChartBar.addEventListener(TouchEvent.TOUCH_TAP, onBarTap);
+            
             // fader
             this.fader = new Shape();
             this.fader.graphics.beginFill(0x000000, 100);
@@ -143,7 +145,7 @@ package
             // 31429 conscape
             map = new TweenMap(
                 stage.stageWidth,
-                stage.stageHeight - TIMELINEHEIGHT,
+                stage.stageHeight,
                 true,
             	new CloudmadeProvider(10,18,"c1862c9125834b9fa203084d73eba088", 31429),
             	new Location(52.522, 13.405),
@@ -169,7 +171,7 @@ package
         }
         private function createTimeline():void
         {
-            timeline = new Timeline([], stage.stageWidth, TIMELINEHEIGHT);
+            timeline = new Timeline([], stage.stageWidth - 2 * TIMELINEPADDINGLEFT, TIMELINEHEIGHT);
 
             var st:Statement = con.createStatement();
             var token:MySqlToken = st.executeQuery("SELECT COUNT(startdate) AS anzahl, DATE_FORMAT(startdate, '%Y-%m-%d') AS startdate FROM events WHERE YEAR(startdate) > 2005 GROUP BY YEAR(startdate), MONTH(startdate), DAY(startdate)");
@@ -180,7 +182,8 @@ package
                 timeline.setData(rs.getRows())
                 timeline.addEventListener(TimelineEvent.RANGECHANGE, function(event:TimelineEvent) {
 
-                    timeline.setTitle("Konzerte vom " + MathsUtil.getBeautifulDate(event.data.startdate) + "—" + MathsUtil.getBeautifulDate(event.data.enddate));
+                    timeline.date1.text = MathsUtil.getBeautifulDate(event.data.startdate);
+                    timeline.date2.text = MathsUtil.getBeautifulDate(event.data.enddate);
                 });
                 timeline.graphColor = 0x2A2A2A;
                 timeline.setAxis("startdate", "anzahl");
@@ -285,8 +288,8 @@ package
                 // Tooltip mit dem Namen des Markers anzeigen
                 pt = map.locationPoint(event.location);
                 tooltip.gfx.venue_name.text = venue.getData("name");
-                tooltip.gfx.address.text = venue.getData("street") ? venue.getData("street") : "";
-                tooltip.gfx.artists.text = venue.getEventData("numberEvents") && venue.getEventData("totalAttendance") ? venue.getEventData("numberEvents") +" Events, " + venue.getEventData("totalAttendance") + " Besucher" : "";
+                tooltip.gfx.address.text = venue.getData("street") ? venue.getData("street") + "(" + venue.getData("geo_lat") +", " + venue.getData("geo_long") + ")" : venue.getData("geo_lat") +", " + venue.getData("geo_long");
+                tooltip.gfx.stats.text = venue.getEventData("numberEvents") && venue.getEventData("totalAttendance") ? venue.getEventData("numberEvents") +" Events, " + venue.getEventData("totalAttendance") + " Besucher" : "";
                 
                 var newColorTransform:ColorTransform = tooltip.gfx.venueIcon.transform.colorTransform;
                 newColorTransform.color = venue.getEventData("prominentGenre").colour;
@@ -297,7 +300,7 @@ package
                 tooltip.gfx.y = -150 - venue.height / 2;
                 
                 map.putMarker(map.pointLocation(pt), tooltip);
-                map.zoomTo(14, event.location, null, 0.5);
+                // map.zoomTo(14, event.location, null, 0.5);
                 
                 venue.getTopArtists(function (artists:Array) {
                     if (artists.length) {
@@ -371,6 +374,9 @@ package
                     }
                     break;
             }
+        }
+        private function onBarTap (event:TouchEvent) {
+            map.removeMarker("bla");
         }
     }
 }

@@ -17,10 +17,10 @@ package conscape.components
 	        0x4d3f37,
 	        0xff8200,
 	        0x986dda,
-	        0x7bc23d,
+	        0xFF0000,
 	        0xb9c7cb,
 	        0xffd400,
-	        0xFF0000
+	        0x7bc23d
 	    ];
 	    public static const NAMES:Array = [
 	        "Pop",

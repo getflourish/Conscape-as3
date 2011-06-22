@@ -53,11 +53,13 @@ package conscape.components
         private var maxDate:Date;
         private var numberOfDays:Number = 0;
         private var padding:Number = 15;
-        private var xPadding:Number = 40;
+        private var xPadding:Number = 0;
         private var pinchCenterX:Number = 0;
         private var startdate:Date;
         private var timeScale:Number = 1;
         private var title:TextField;
+        public var date1:TextField;
+        public var date2:TextField;
         private var titleFormat:TextFormat;
         private var today:Date;
         private var scrollView:ScrollView;
@@ -74,7 +76,7 @@ package conscape.components
             this.data = data;
             this.fields = [];
             this.padding = padding;
-            this.bounds = new Rectangle(xPadding, padding, width-2*xPadding, height-2*padding);
+            this.bounds = new Rectangle(xPadding, padding, width, height-2*padding);
             this.graphBounds = new Rectangle(xPadding, padding, width-2*xPadding, height - dateLabelHeight - 2*padding);
             this.initWidth = width;
             this.initHeight = height;
@@ -166,14 +168,36 @@ package conscape.components
             // Titel des Diagrams (wird vom Hauptprogramm gesetzt)
              
             this.title = new TextField();
-            // this.addChild(title);
+            //this.addChild(title);
             this.title.width = graphBounds.width;
             this.title.x = 0;
-            this.title.y = this.bounds.height + padding /  - Number(titleFormat.size);
+            this.title.y = 0;
             this.title.selectable = false;
             this.title.text = "";
              
             this.title.setTextFormat(titleFormat);
+            
+            this.date1 = new TextField();
+            this.addChild(date1);
+            this.date1.width = graphBounds.width;
+            this.date1.x = 0;
+            this.date1.y = -10;
+            this.date1.selectable = false;
+            this.date1.text = "10.01.2010";
+             
+            this.date1.setTextFormat(titleFormat);
+            
+            //
+            
+            this.date2 = new TextField();
+            this.addChild(date2);
+            this.date2.width = graphBounds.width;
+            this.date2.x = width - 40;
+            this.date2.y = -10;
+            this.date2.selectable = false;
+            this.date2.text = "10.01.2010";
+             
+            this.date2.setTextFormat(titleFormat);
              
             // Die Achsenbeschriftung der Zeitachse
             this.dateAxis = new Sprite();
@@ -187,8 +211,8 @@ package conscape.components
              
             // Ein paar Textformatierungen
             titleFormat = new TextFormat();
-            titleFormat.color = 0x2A2A2A;
-            titleFormat.size = 18;
+            titleFormat.color = 0xcccccc;
+            titleFormat.size = 14;
             titleFormat.font = "Helvetica";
              
             axisFormat = new TextFormat();
