@@ -173,32 +173,29 @@ package conscape.components
             this.title.x = 0;
             this.title.y = 0;
             this.title.selectable = false;
+            this.title.defaultTextFormat = titleFormat;
             this.title.text = "";
-             
-            this.title.setTextFormat(titleFormat);
             
             this.date1 = new TextField();
             this.addChild(date1);
             this.date1.width = graphBounds.width;
-            this.date1.x = 0;
+            this.date1.x = 5;
             this.date1.y = -10;
             this.date1.selectable = false;
+            this.date1.defaultTextFormat = titleFormat; 
             this.date1.text = "10.01.2010";
-             
-            this.date1.setTextFormat(titleFormat);
             
             //
             
             this.date2 = new TextField();
             this.addChild(date2);
             this.date2.width = graphBounds.width;
-            this.date2.x = width - 40;
+            this.date2.x = width - 85;
             this.date2.y = -10;
             this.date2.selectable = false;
+            this.date2.defaultTextFormat = titleFormat;
             this.date2.text = "10.01.2010";
-             
-            this.date2.setTextFormat(titleFormat);
-             
+            
             // Die Achsenbeschriftung der Zeitachse
             this.dateAxis = new Sprite();
             this.dateAxis.x = 0;
@@ -211,8 +208,9 @@ package conscape.components
              
             // Ein paar Textformatierungen
             titleFormat = new TextFormat();
-            titleFormat.color = 0xcccccc;
+            titleFormat.color = 0xbbbbbb;
             titleFormat.size = 14;
+            titleFormat.bold = true;
             titleFormat.font = "Helvetica";
              
             axisFormat = new TextFormat();
@@ -412,9 +410,10 @@ package conscape.components
                         label.width = dateLabelWidth;
                         label.x = getXForDate(min) * timeScale;
                         label.y = dateLabelPaddingY;
+                        label.defaultTextFormat = axisFormat;
                         label.text = "" + String(min.fullYear);
                         label.selectable = false;
-                        label.setTextFormat(axisFormat);
+                        //label.setTextFormat(axisFormat);
                         min = Dates.addYears(min, 1);
                     }
                     break;
@@ -430,9 +429,9 @@ package conscape.components
                         label.width = dateLabelWidth;
                         label.x = getXForDate(minD) * timeScale;
                         label.y = dateLabelPaddingY;
+                        label.defaultTextFormat = axisFormat;
                         label.text = "" + Dates.monthName(minD.month);
                         label.selectable = false;
-                        label.setTextFormat(axisFormat);
                         minD = Dates.addMonths(minD, 1);
                     }
                     break;
