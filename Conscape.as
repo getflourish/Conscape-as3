@@ -60,7 +60,7 @@ package
         private const PADDINGRIGHT:int = 100;
         private const BOTTOMPADDING:int = 300;
         private const TIMELINEPADDINGLEFT = 20;
-        private const TIMELINEPADDINGTOP = 50;
+        private const TIMELINEPADDINGBOTTOM = 50;
         private const TIMELINEHEIGHT = 150;
         private var auto:Boolean = false;
         private var cachedMarkers:Dictionary;
@@ -182,10 +182,10 @@ package
 
                     timeline.setTitle("Konzerte vom " + MathsUtil.getBeautifulDate(event.data.startdate) + "—" + MathsUtil.getBeautifulDate(event.data.enddate));
                 });
-                timeline.graphColor = 0xffffff;
+                timeline.graphColor = 0x2A2A2A;
                 timeline.setAxis("startdate", "anzahl");
                 timeline.x = TIMELINEPADDINGLEFT;
-                timeline.y = map.height + TIMELINEPADDINGTOP - 200;
+                timeline.y = map.height - TIMELINEPADDINGBOTTOM - TIMELINEHEIGHT;
                 addChild(timeline);
             });
         }
@@ -268,7 +268,7 @@ package
         private function onResize (event:Event = null):void
         {
             var w:Number = stage.stageWidth;
-            var h:Number = stage.stageHeight - TIMELINEHEIGHT;
+            var h:Number = stage.stageHeight;
 
             // Größe und Position der Karte an die Fenstergröße anpassen
             map.x = map.y = 0;
