@@ -35,6 +35,7 @@ package
     import flash.geom.ColorTransform;
     import flash.text.TextField;
     import flash.text.TextFormat;
+    import flash.ui.Mouse;
 
     import flash.net.URLLoader;
     import flash.net.URLRequest;
@@ -68,6 +69,7 @@ package
         private var currentScale = 12;
         private var dates:ResultSet;
         private var lastScaleValue:Number = 0;
+        private var fingers:Dictionary;
         private var map:TweenMap;
         private var markers:Dictionary;
         private var maxEvents = 0;
@@ -84,12 +86,15 @@ package
         
         private var fader:Shape;
         private var black:Boolean = true;
+        private var showFingers:Boolean = true;
 
         public function Conscape()
         {
             this.licenseKey = "18AF7FE030741A38BE7FFBFDAC9590A4E1B66841B6";
             this.settingsPath = "application.xml";
 			super();
+			
+            Mouse.hide();
             
             var fps:FPSCounter = new FPSCounter();
             fps.x = stage.stageWidth - 100;
@@ -124,6 +129,15 @@ package
             this.fader.graphics.endFill();
             
             stage.addChild(fader);
+            
+            // Finger speichern und diese dann visualisieren
+            if (showFingers) {
+                fingers = new Dictionary(true);
+                addEventListener(TouchEvent.TOUCH_DOWN, onFingerDown);
+                addEventListener(TouchEvent.TOUCH_MOVE, onFingerMove);
+                addEventListener(TouchEvent.TOUCH_UP, onFingerUp);
+                addEventListener(TouchEvent.TOUCH_TAP, onFingerTap);   
+            }
         }
         private function pause (event:KeyboardEvent):void
         {
@@ -168,6 +182,7 @@ package
             
             stage.addEventListener(KeyboardEvent.KEY_DOWN, onKey);
 
+            // An Bildschirm anpassen
             onResize();
         }
         private function createTimeline():void
@@ -378,6 +393,31 @@ package
         }
         private function onBarTap (event:TouchEvent) {
             map.removeMarker("bla");
+        }
+        private function onFingerDown (event:TouchEvent) {
+            var finger = new Finger();
+            finger.x = event.stageX;
+            finger.y = event.stageY;
+            fingers[event.tactualObject] = finger;
+            addChild(finger);
+        }
+        private function onFingerMove (event:TouchEvent) {
+            fingers[event.tactualObject].x = event.stageX;
+            fingers[event.tactualObject].y = event.stageY;
+        }
+        private function onFingerUp (event:TouchEvent) {
+            removeChild(fingers[event.tactualObject]);
+            fingers[event.tactualObject] = null;
+        }
+        private function onFingerTap (event:TouchEvent) {
+            var finger = new Finger();
+            finger.x = event.stageX;
+            finger.y = event.stageY;
+            fingers[event.tactualObject] = finger;
+            addChild(finger);
+            finger.mc.gotoAndStop(2);
+            
+            // todo: Wenn die Animation zu Ende ist den Finger wieder entfernen
         }
     }
 }
