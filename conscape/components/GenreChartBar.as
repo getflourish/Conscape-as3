@@ -95,11 +95,11 @@ package conscape.components
             var y:Number = 0;
             for each(var genreId:String in Genre.ORDER) {
                 if (this.currentDataProvider.isSelectedGenre(genreId)) {
-                    TweenLite.to(this.chartRects[genreId], 0.5, {alpha:1});
+                    TweenLite.to(this.chartRects[genreId], 0.5, {alpha:0.8});
                     TweenLite.to(this.chartLabels[genreId], 0.5, {alpha:1});
                 } else {
-                    TweenLite.to(this.chartRects[genreId], 0.5, {alpha:0.5});
-                    TweenLite.to(this.chartLabels[genreId], 0.5, {alpha:0.5});
+                    TweenLite.to(this.chartRects[genreId], 0.5, {alpha:0.25});
+                    TweenLite.to(this.chartLabels[genreId], 0.5, {alpha:1});
                 }
                 var barHeight:Number = this.chartHeight * (this.totalGenres[genreId]["count"]/this.currentDataProvider.getTotalGenreCount());
                 this.chartRects[genreId].graphics.clear();

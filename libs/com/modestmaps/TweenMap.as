@@ -126,8 +126,8 @@ package com.modestmaps
         	var preciseZoomDelta:Number = constrainedDelta + (Math.round(grid.zoomLevel+constrainedDelta) - (grid.zoomLevel+constrainedDelta));
 
             // todo: Changed to work with Gestures
-        	var sc:Number = Math.pow(2, preciseZoomDelta);
-        	// var sc:Number = Math.pow(2, constrainedDelta);
+        	// var sc:Number = Math.pow(2, preciseZoomDelta);
+        	var sc:Number = Math.pow(2, constrainedDelta);
 			
 			grid.prepareForZooming();
 			grid.prepareForPanning();

@@ -360,23 +360,23 @@ package
         }
         private function onStopZoom(event:TouchEvent):void
         {
-            if (zooming) {
-                if (lastScaleValue > 0) {
-                    var z:Number = Math.ceil(map.grid.zoomLevel);
-                    var d:Number = z - map.grid.zoomLevel;
-                    //TweenLite.to(map.grid, 0.1, { zoomLevel: z});
-                    map.zoomByAbout(d, zoomPoint);
-                } else {
-                    z = Math.floor(map.grid.zoomLevel);
-                    d = map.grid.zoomLevel - z;
-                    // TweenLite.to(map.grid, 0.1, { zoomLevel: z});
-                    map.zoomByAbout(-d, zoomPoint);
-                }
-                trace(d);
-                currentScale = z;
-                zooming = false;
-                map.removeEventListener(TouchEvent.TOUCH_UP, onStopZoom);
-            }
+            //if (zooming) {
+            //    if (lastScaleValue > 0) {
+            //        var z:Number = Math.ceil(map.grid.zoomLevel);
+            //        var d:Number = z - map.grid.zoomLevel;
+            //        //TweenLite.to(map.grid, 0.1, { zoomLevel: z});
+            //        map.zoomByAbout(d, zoomPoint);
+            //    } else {
+            //        z = Math.floor(map.grid.zoomLevel);
+            //        d = map.grid.zoomLevel - z;
+            //        // TweenLite.to(map.grid, 0.1, { zoomLevel: z});
+            //        map.zoomByAbout(-d, zoomPoint);
+            //    }
+            //    trace(d);
+            //    currentScale = z;
+            //    zooming = false;
+            //    map.removeEventListener(TouchEvent.TOUCH_UP, onStopZoom);
+            //}
         }
         private function onKey(event:KeyboardEvent) {
             switch(event.keyCode) {
