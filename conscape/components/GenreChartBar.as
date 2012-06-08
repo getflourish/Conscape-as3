@@ -38,7 +38,7 @@ package conscape.components
             
             this.addChild(bar);
             
-            Font.registerFont(HelveticaNeueBold);
+            Font.registerFont(LabelFont);
             this.chartLabels = new Dictionary();
             this.chartRects = new Dictionary();
             var chartLabelTextFormat:TextFormat = new TextFormat();
@@ -47,7 +47,7 @@ package conscape.components
             chartLabelTextFormat.bold = true;
             chartLabelTextFormat.color = 0xFFFFFF;
             chartLabelTextFormat.kerning = true;
-            chartLabelTextFormat.font = "Helvetica Neue";
+            chartLabelTextFormat.font = "Helvetica";
             var dropShadow:DropShadowFilter = new DropShadowFilter();
             dropShadow.color = 0x000000;
             dropShadow.blurX = 3;
