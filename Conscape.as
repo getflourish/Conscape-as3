@@ -86,7 +86,7 @@ package
         
         private var fader:Shape;
         private var black:Boolean = true;
-        private var showFingers:Boolean = false;
+        private var showFingers:Boolean = true;
 
         public function Conscape()
         {
@@ -131,7 +131,6 @@ package
             stage.addChild(fader);
             
             // Finger speichern und diese dann visualisieren
-            /*
             if (showFingers) {
                 fingers = new Dictionary(true);
                 addEventListener(TouchEvent.TOUCH_DOWN, onFingerDown);
@@ -139,7 +138,6 @@ package
                 addEventListener(TouchEvent.TOUCH_UP, onFingerUp);
                 addEventListener(TouchEvent.TOUCH_TAP, onFingerTap);   
             }
-            */
         }
         private function pause (event:KeyboardEvent):void
         {
@@ -150,25 +148,6 @@ package
                     myTimer.start();
                 }
             }
-        }
-        private function startShowingFingers():void
-        {
-            fingers = new Dictionary(true);
-            addEventListener(TouchEvent.TOUCH_DOWN, onFingerDown);
-            addEventListener(TouchEvent.TOUCH_MOVE, onFingerMove);
-            addEventListener(TouchEvent.TOUCH_UP, onFingerUp);
-            addEventListener(TouchEvent.TOUCH_TAP, onFingerTap);
-        }
-        private function stopShowingFingers():void
-        {
-            for each(var finger:* in fingers) {
-                removeChild(finger);
-            }
-            fingers = null;
-            removeEventListener(TouchEvent.TOUCH_DOWN, onFingerDown);
-            removeEventListener(TouchEvent.TOUCH_MOVE, onFingerMove);
-            removeEventListener(TouchEvent.TOUCH_UP, onFingerUp);
-            removeEventListener(TouchEvent.TOUCH_TAP, onFingerTap);
         }
         private function createMap():void
         {
@@ -410,13 +389,6 @@ package
                         black = true;
                     }
                     break;
-                case 70:
-                    showFingers = !showFingers;
-                    if (showFingers) {
-                        startShowingFingers();
-                    } else {
-                        stopShowingFingers();
-                    }
             }
         }
         private function onBarTap (event:TouchEvent) {
