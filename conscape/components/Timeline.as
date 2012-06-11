@@ -289,8 +289,8 @@ package conscape.components
         private function onPinch (event:GestureEvent):void
         {
              
-            if (timeScale + event.value * 50 > 1) {
-                timeScale += event.value * 50;
+            if (timeScale + event.value * 5 > 1) {
+                timeScale += event.value * 5;
             } else {
                 timeScale = 1;
             }  
