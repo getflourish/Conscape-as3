@@ -68,14 +68,14 @@ package conscape.components
         	this.display = new CircleDisplay(this, this.currentDataProvider);
             this.addChild(this.display);
             
-            Font.registerFont(HelveticaNeueBold);
+            Font.registerFont(LabelFont);
             var labelTextFormat:TextFormat = new TextFormat();
             labelTextFormat.size = 15;
             labelTextFormat.align = TextFormatAlign.CENTER;
             labelTextFormat.bold = true;
             labelTextFormat.color = 0xFFFFFF;
             labelTextFormat.kerning = true;
-            labelTextFormat.font = "Helvetica Neue";
+            labelTextFormat.font = "Helvetica";
             var dropShadow:DropShadowFilter = new DropShadowFilter();
             dropShadow.color = 0x000000;
             dropShadow.blurX = 3;
