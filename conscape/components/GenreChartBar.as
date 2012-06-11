@@ -62,6 +62,9 @@ package conscape.components
                 chartLabel.width = this.chartWidth;
                 chartLabel.defaultTextFormat = chartLabelTextFormat;
             	chartLabel.text = Genre.getGenreObject()[genre]["name"];
+            	if (Genre.getGenreObject()[genre]["name"] == "Black") {
+                    chartLabel.text = "RnB";
+            	}
                 chartLabel.filters = new Array(dropShadow);
                 chartLabel.mouseEnabled = false;
                 this.chartLabels[genre] = chartLabel;
