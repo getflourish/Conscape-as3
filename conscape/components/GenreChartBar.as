@@ -111,6 +111,12 @@ package conscape.components
                 this.chartRects[genreId].graphics.drawRect(0, 0, this.chartWidth, barHeight);
                 this.chartRects[genreId].graphics.endFill();
                 this.chartLabels[genreId].y = y + barHeight/2 - 11;
+                // hide label if genre has less than 2%
+                if (this.totalGenres[genreId]["count"]/this.currentDataProvider.getTotalGenreCount() < 0.02) {
+                    this.chartLabels[genreId].visible = false;
+                } else {
+                    this.chartLabels[genreId].visible = true;
+                }
                 y += barHeight;
             }
         }
