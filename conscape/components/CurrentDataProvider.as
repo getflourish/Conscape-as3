@@ -151,13 +151,15 @@ package conscape.components
                 totalGenres = Genre.getGenreObject();
                 for each(var item:* in event.resultSet.getRows()) {
                     var genres:Object = Genre.getGenreObject();
-                    var prominentGenre = Genre.getGenre("andere");
+                    var prominentGenre = Genre.getGenre("-1");
                     if (item["genre_list"]) {
-                        trace("j " + item["number_events"]);
+                        //trace("j " + item["number_events"]);
                         for each(var genreName:String in String(item["genre_list"]).split(",")) {
-                            genres[genreName]["count"] += 1;
-                            totalGenres[genreName]["count"] += 1;
-                            totalGenreCount += 1;
+                            if (genreName.length) {
+                                genres[genreName]["count"] += 1;
+                                totalGenres[genreName]["count"] += 1;
+                                totalGenreCount += 1;
+                            }
                         }
                         for each(var genreItem:Object in genres) {
                             if (genreItem["count"] > prominentGenre["count"]) {
@@ -166,9 +168,9 @@ package conscape.components
                         }
                     } else {
                         // TODO: HACK
-                        trace("n " + item["number_events"] + " " + item["lastfm_venue_id"]);
-                        genres["andere"]["count"] += Math.ceil(item["number_events"]/2);
-                        totalGenres["andere"]["count"] += Math.ceil(item["number_events"]/2);
+                        //trace("n " + item["number_events"] + " " + item["lastfm_venue_id"]);
+                        genres["-1"]["count"] += Math.ceil(item["number_events"]/2);
+                        totalGenres["-1"]["count"] += Math.ceil(item["number_events"]/2);
                         totalGenreCount += Math.ceil(item["number_events"]/2);
                     }
                     venue_event_data[item["lastfm_venue_id"]] = {
@@ -197,7 +199,6 @@ package conscape.components
         }
         private function throttle(event:TimerEvent):void
         {
-            trace("hi");
             if (this.throttlerData.active) {
                 this.throttlerData.active = false;
                 this.getNewData(this.throttlerData.eData.startdate, this.throttlerData.eData.enddate, this.throttlerData.eData.numberOfDays);
