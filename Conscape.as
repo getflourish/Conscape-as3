@@ -374,6 +374,7 @@ package
                 map.putMarker(map.pointLocation(pt), tooltip);
                 // map.zoomTo(14, event.location, null, 0.5);
                 
+                tooltip.gfx.artists.text = "";
                 venue.getTopArtists(function (artists:Array) {
                     if (artists.length) {
                         var artistsStringified:Array = [];
