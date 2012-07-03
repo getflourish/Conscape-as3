@@ -30,12 +30,12 @@ package conscape.components
 	    ];
 	    public static const COLOURS:Array = [
 	        0x7bc23d,
-	        0x7bc23d,
+	        0x000000,
             0x7bc23d,
             0x7bc23d,
             0x7bc23d,
             0x7bc23d,
-            0x7bc23d,
+            0xcbb380,
             0x7bc23d,
             0xffd400,
             0x7bc23d,
@@ -49,10 +49,10 @@ package conscape.components
             0xba305f,
             0x4d3f37,
             0x7bc23d,
+            0xf27d27,
             0x7bc23d,
             0x7bc23d,
-            0x7bc23d,
-            0x7bc23d,
+            0x7bc23d
 	    ];
 	    public static const NAMES:Array = [
 	        "Andere",
