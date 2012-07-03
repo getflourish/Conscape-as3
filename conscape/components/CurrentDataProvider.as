@@ -34,11 +34,14 @@ package conscape.components
         private var throttleTimer:Timer;
         private var throttleAmount:Number = 100;
         
-        public function CurrentDataProvider(_timeline:Timeline, _con:Connection)
+        private var city:String;
+        
+        public function CurrentDataProvider(_timeline:Timeline, _con:Connection, _city:String)
         {
             this.venue_event_data = new Dictionary();
             this.timeline = _timeline;
             this.con = _con;
+            this.city = _city;
             this.selectedGenres = new Dictionary();
             for each(var gid:String in Genre.ORDER) {
                 this.selectedGenres[gid] = true;
@@ -121,18 +124,18 @@ package conscape.components
                 var query:String = [
                     "SELECT lastfm_venue_id, COUNT(*) as number_events, SUM(attendance) as total_attendance, GROUP_CONCAT(genres SEPARATOR ',') as genre_list",
                     "FROM events",
-                    "WHERE startdate BETWEEN '"+startdate+"' AND '"+enddate+"'",
+                    "WHERE startdate BETWEEN '"+startdate+"' AND '"+enddate+"' AND city = '"+city+"'",
                     "GROUP BY lastfm_venue_id"
                     ].join(" ");   
             } else {
                 query = [
                     "SELECT lastfm_venue_id, COUNT(*) as number_events, SUM(attendance) as total_attendance, GROUP_CONCAT(genres SEPARATOR ',') as genre_list",
                     "FROM events",
-                    "WHERE startdate Like '"+startdate+"'",
+                    "WHERE startdate Like '"+startdate+"' AND city = '"+city+"'",
                     "GROUP BY lastfm_venue_id"
                     ].join(" ");
             }
-
+            
             var st:Statement = con.createStatement(); 
             var token:MySqlToken = st.executeQuery(query);
             token.addEventListener(MySqlErrorEvent.SQL_ERROR, function(event:MySqlErrorEvent)

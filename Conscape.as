@@ -87,6 +87,8 @@ package
         private var fader:Shape;
         private var black:Boolean = true;
         private var showFingers:Boolean = true;
+        
+        private var city:String = "Berlin";
 
         public function Conscape()
         {
@@ -111,10 +113,10 @@ package
             createMap();
             connectToDatabase();
             createTimeline();
-            currentDataProvider = new CurrentDataProvider(timeline, con);
+            currentDataProvider = new CurrentDataProvider(timeline, con, this.city);
             loadVenues();
 
-            this.genreChartBar = new GenreChartBar(stage.stageHeight - 100 - TIMELINEHEIGHT, 75, currentDataProvider);
+            this.genreChartBar = new GenreChartBar(stage.stageHeight - 100 - TIMELINEHEIGHT, 120, currentDataProvider);
             this.genreChartBar.x = stage.stageWidth - TIMELINEPADDINGLEFT - genreChartBar.width;
             this.genreChartBar.y = 50;
 
@@ -157,12 +159,66 @@ package
             // Simple beige 30285
             // 19816 grau
             // 31429 conscape
+            // Berlin 52.522, 13.405
+            // New York 40.730608, -73.98674
+            var lat:Number = 52.522;
+            var long:Number = 13.405;
+            switch (city) {
+                case "New York":
+                    lat = 40.730608;
+                    long = -73.98674;
+                    break;
+                case "London":
+                    lat = 51.52;
+                    long = -0.1;
+                    break;
+                case "Paris":
+                    lat = 48.86;
+                    long = 2.34;
+                    break;
+                case "Tokyo":
+                    lat = 35.67;
+                    long = 139.77;
+                    break;
+                case "Madrid":
+                    lat = 40.42;
+                    long = -3.71;
+                    break;
+                case "Barcelona":
+                    lat = 41.4;
+                    long = 2.17;
+                    break;
+                case "Hamburg":
+                    lat = 53.55;
+                    long = 10;
+                    break;
+                case "San Francisco":
+                    lat = 37.77;
+                    long = -122.45;
+                    break;
+                case "Melbourne":
+                    lat = -37.81;
+                    long = 144.96;
+                    break;
+                case "Moscow":
+                    lat = 55.75;
+                    long = 37.62;
+                    break;
+                case "Sidney":
+                    lat = -33.87;
+                    long = 151.21;
+                    break;
+                case "Milan":
+                    lat = 45.48;
+                    long = 9.19;
+                    break;
+            }
             map = new TweenMap(
                 stage.stageWidth,
                 stage.stageHeight,
                 true,
             	new CloudmadeProvider(10,18,"c1862c9125834b9fa203084d73eba088", 31429),
-            	new Location(52.522, 13.405),
+            	new Location(lat, long),
                 currentScale);
             map.x = map.y = 0;
             addChild(map);
@@ -190,7 +246,7 @@ package
             timeline = new Timeline([], stage.stageWidth - 2 * TIMELINEPADDINGLEFT, TIMELINEHEIGHT);
 
             var st:Statement = con.createStatement();
-            var token:MySqlToken = st.executeQuery("SELECT COUNT(startdate) AS anzahl, DATE_FORMAT(startdate, '%Y-%m-%d') AS startdate FROM events WHERE YEAR(startdate) > 2005 GROUP BY YEAR(startdate), MONTH(startdate), DAY(startdate)");
+            var token:MySqlToken = st.executeQuery("SELECT COUNT(startdate) AS anzahl, DATE_FORMAT(startdate, '%Y-%m-%d') AS startdate FROM events WHERE YEAR(startdate) > 2005 AND city = '"+city+"' GROUP BY YEAR(startdate), MONTH(startdate), DAY(startdate)");
             token.addEventListener(MySqlErrorEvent.SQL_ERROR, onError);
             token.addEventListener(MySqlEvent.RESULT, function(event:MySqlEvent)
             {
@@ -212,7 +268,7 @@ package
         {
             this.venues = new Dictionary();
             var st:Statement = con.createStatement();
-            var token:MySqlToken = st.executeQuery("SELECT * FROM venues");
+            var token:MySqlToken = st.executeQuery("SELECT * FROM venues WHERE city = '"+city+"'");
             token.addEventListener(MySqlErrorEvent.SQL_ERROR, onError);
             token.addEventListener(MySqlEvent.RESULT, function(event:MySqlEvent)
             {
