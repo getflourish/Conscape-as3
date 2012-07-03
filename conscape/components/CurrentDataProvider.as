@@ -3,6 +3,9 @@ package conscape.components
     import flash.utils.Dictionary;
     import flash.events.EventDispatcher;
     import flash.events.ErrorEvent;
+    import flash.events.Event;
+    import flash.events.TimerEvent;
+    import flash.utils.Timer;
     
     import conscape.events.*;
     import conscape.util.MathsUtil;
@@ -27,6 +30,10 @@ package conscape.components
         
         private var con:Connection;
         
+        private var throttlerData:Object;
+        private var throttleTimer:Timer;
+        private var throttleAmount:Number = 100;
+        
         public function CurrentDataProvider(_timeline:Timeline, _con:Connection)
         {
             this.venue_event_data = new Dictionary();
@@ -36,6 +43,13 @@ package conscape.components
             for each(var gid:String in Genre.ORDER) {
                 this.selectedGenres[gid] = true;
 		    }
+		    this.throttlerData = {
+		        "eData": null,
+		        "active": false
+		    };
+            this.throttleTimer = new Timer(this.throttleAmount, 0);
+            this.throttleTimer.addEventListener(TimerEvent.TIMER, throttle);
+            this.throttleTimer.start();
             timeline.addEventListener(TimelineEvent.RANGECHANGE, dateChangeCallback);
         }
         public function getConnection():Connection
@@ -175,7 +189,16 @@ package conscape.components
         }
         private function dateChangeCallback(event:TimelineEvent):void
         {
-            this.getNewData(event.data.startdate, event.data.enddate, event.data.numberOfDays);
+            this.throttlerData.eData = event.data;
+            this.throttlerData.active = true;
+        }
+        private function throttle(event:TimerEvent):void
+        {
+            trace("hi");
+            if (this.throttlerData.active) {
+                this.throttlerData.active = false;
+                this.getNewData(this.throttlerData.eData.startdate, this.throttlerData.eData.enddate, this.throttlerData.eData.numberOfDays);
+            }
         }
     }
 }
