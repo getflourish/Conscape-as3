@@ -72,7 +72,7 @@ package conscape.components
         {
             debugger = new MonsterDebugger(this);
             
-            this.today = new Date(2011,1,8); 
+            this.today = new Date(); 
             this.data = data;
             this.fields = [];
             this.padding = padding;
